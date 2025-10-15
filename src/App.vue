@@ -1,15 +1,9 @@
 <script setup>
 /*
 NEXT STEP:
-IMPLEMENT different tools
-- OBJECT eraser
 - Lasso/rectangle HMER select tool
 
 CONSIDER:
-- sclable method of storing tools (Map or something)
-  - we have drawing
-  - object eraser will check what element clientX and clientY hit, and remove it
-    - optimize?
   - HMER thing will take PNG snippit of the canvas and export it
     - if we do lasso we will need to take a bounding box - alggorithm??
 */
@@ -20,7 +14,7 @@ path - d prop for <path> element - a string with path data
 stroke - user input (position stuff)
 */
 import { ref } from 'vue'
-
+3
 //! CHANGE this to NOT REF and put a ctx canvas on top of the svg to render active stroke. way faster and smoother and better.
 var currentStroke = ref([])
 const paths = ref([])
