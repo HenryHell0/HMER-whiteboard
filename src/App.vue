@@ -14,7 +14,7 @@ path - d prop for <path> element - a string with path data
 stroke - user input (position stuff)
 */
 import { ref } from 'vue'
-3
+
 //! CHANGE this to NOT REF and put a ctx canvas on top of the svg to render active stroke. way faster and smoother and better.
 var currentStroke = ref([])
 const paths = ref([])
@@ -115,6 +115,35 @@ function SVGMouseMove(event) {
 function SVGMouseUp(event) {
   tools.get(activeTool.value).onUp?.(event)
 }
+
+// attempt at mobile support
+// function getTouchPosition(event) {
+//   const touch = event.touches[0] || event.changedTouches[0]
+//   return {
+//     x: touch.clientX,
+//     y: touch.clientY,
+//   }
+// }
+
+// function SVGTouchStart(event) {
+//   SVGTouchEnd(event)
+//   event.preventDefault()
+//   const pos = getTouchPosition(event)
+//   SVGMouseDown({ offsetX: pos.x, offsetY: pos.y, buttons: 1, clientX: pos.x, clientY: pos.y })
+// }
+
+// function SVGTouchMove(event) {
+//   event.preventDefault()
+//   const pos = getTouchPosition(event)
+//   SVGMouseMove({ offsetX: pos.x, offsetY: pos.y, buttons: 1, clientX: pos.x, clientY: pos.y })
+// }
+
+// function SVGTouchEnd(event) {
+//   console.log('touching u rn')
+//   event.preventDefault()
+//   const pos = getTouchPosition(event)
+//   SVGMouseUp({ offsetX: pos.x, offsetY: pos.y, buttons: 1, clientX: pos.x, clientY: pos.y })
+// }
 </script>
 
 <template>
@@ -130,6 +159,11 @@ function SVGMouseUp(event) {
     </button>
   </div>
 
+  <!--
+  @touchstart.prevent="SVGTouchStart"
+  @touchmove.prevent="SVGTouchMove"
+  @touchend.prevent="SVGTouchEnd"
+  @touchcancel.prevent="SVGTouchEnd" -->
   <svg class="SVGCanvas" @mousedown="SVGMouseDown" @mouseup="SVGMouseUp" @mousemove="SVGMouseMove">
     <path v-for="path in paths" :d="path.d" class="stroke" :key="path.id" :data-id="path.id" />
 
