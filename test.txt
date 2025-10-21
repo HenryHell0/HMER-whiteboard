@@ -1,0 +1,37 @@
+const svgElement = document.getElementById('SVGCanvas')
+const serializer = new XMLSerializer()
+const svgString = serializer.serializeToString(svgElement)
+
+const fullCanvas = document.createElement('canvas')
+const fullCtx = fullCanvas.getContext('2d')
+
+const fullBlob = new Blob([svgString], { type: 'image/svg+xml' })
+const fullBlobUrl = URL.createObjectURL(fullBlob)
+
+const fullImg = new Image()
+fullImg.onload = () => {
+  // draw SVG → canvas
+  fullCanvas.width = fullImg.width
+  fullCanvas.height = fullImg.height
+  fullCtx.drawImage(fullImg, 0, 0)
+  URL.revokeObjectURL(fullImg.src)
+
+  // crop region
+  const croppedImageData = fullCtx.getImageData(0, 0, 20, 20)
+  const croppedCanvas = document.createElement('canvas')
+  croppedCanvas.width = croppedImageData.width
+  croppedCanvas.height = croppedImageData.height
+  const croppedCtx = croppedCanvas.getContext('2d')
+  croppedCtx.putImageData(croppedImageData, 0, 0)
+
+  // download PNG
+  const testURL = croppedCanvas.toDataURL()
+  const downloadLinkElement = document.createElement('a')
+  downloadLinkElement.href = testURL
+  downloadLinkElement.download = 'canvas-screenshot.png'
+  document.body.appendChild(downloadLinkElement)
+  downloadLinkElement.click()
+  document.body.removeChild(downloadLinkElement)
+}
+
+fullImg.src = fullBlobUrl
