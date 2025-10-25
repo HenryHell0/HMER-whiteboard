@@ -1,13 +1,5 @@
 <script setup>
 /*
-Next thing directly:
-Send to backend
-- Post the resulting PNG data (Blob or base64 string) to your Python microservice for HMER inference.
-	const formData = new FormData();
-	formData.append('img', blob, 'drawing.png');
-	fetch('http://127.0.0.1:8000/predict', { method: 'POST', body: formData });
-- then create the expression component
-*/
 
 /*
 NAMING CONVENTIONS:
@@ -30,7 +22,7 @@ const previousOffsetPos = { x: -1, y: -1 }
 
 const DEBUG = {
 	logMouseMovements: false,
-	downloadPNG: true,
+	downloadPNG: false,
 }
 
 function serializeSVG(svgElement) {
@@ -96,8 +88,9 @@ function svgToCanvas(id) {
 	})
 }
 
-// note: this function also deletes something if you intersect the edge of a bbox, so it can erase things even if you aren't over it completely - especially if it is a diagonal.
 function erasePathsInRect(x, y, width, height) {
+	// this function also deletes something if you intersect the edge of a bbox, so it can erase things even if you aren't over it completely - especially if it is a diagonal.
+
 	const rectLeft = x
 	const rectRight = x + width
 	const rectTop = y
@@ -142,6 +135,25 @@ function erasePathsInRect(x, y, width, height) {
 	})
 }
 
+async function canvasToBlob(canvas) {
+	return new Promise((resolve) => {
+		canvas.toBlob(resolve, 'image/png')
+	})
+}
+async function recognizeCanvas(canvas) {
+	const blob = await canvasToBlob(canvas)
+	const formData = new FormData()
+	formData.append('img', blob, 'image.png')
+
+	const response = await fetch('/api/predict', {
+		method: 'POST',
+		body: formData,
+	})
+	const latex = await response.text()
+
+	// temp
+	console.log(latex)
+}
 
 const pen = {
 	onDown(event) {
@@ -214,13 +226,15 @@ const eraser = {
 		}
 	},
 }
-//? consider adding a confirmation/additional editing of selection (a lot of work for a small feature)
 const selector = {
+	//? consider adding a confirmation/additional editing of selection (a lot of work for a small feature)
+
 	startX: ref(-1),
 	startY: ref(-1),
 	endX: ref(-1),
 	endY: ref(-1),
 	isActive: ref(false),
+
 	onDown(event) {
 		this.startX.value = event.clientX
 		this.startY.value = event.clientY
@@ -247,7 +261,8 @@ const selector = {
 
 		if (DEBUG.downloadPNG) downloadCanvasPNG(croppedCanvas)
 
-		// TODO insert expression
+		// TODO insert expression - probably refactor toooooo a different function
+		recognizeCanvas(croppedCanvas)
 
 		// reset
 		this.endX.value = event.clientX

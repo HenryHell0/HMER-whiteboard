@@ -21,7 +21,7 @@
 ---
 
 ### solving component _hard!_
-
+*note that when we do this we will have to switch backend to FastAPI and change vite proxies*
 - _10/26/25_ Sun- create web server and test on test application with SymPy API
 - _10/27/25_ Mon - add solve button and get response from SymPy API - potentially start on tomorrow’s stuff
 - _10/28/25_ Tuesday - work on parsing(?) of SymPy response - research SymPy API functions more
