@@ -30,3 +30,10 @@ notes.txt
 *.sw?
 
 *.tsbuildinfo
+
+# backend stuff
+.venv/
+__pycache__/
+*.pyc
+
+.env

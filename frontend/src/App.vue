@@ -30,7 +30,6 @@ const previousOffsetPos = { x: -1, y: -1 }
 
 const DEBUG = {
 	logMouseMovements: false,
-	logImageConversionSizes: false,
 	downloadPNG: true,
 }
 
@@ -87,6 +86,8 @@ function svgToCanvas(id) {
 			// draw image to canvas
 			canvas.width = img.width
 			canvas.height = img.height
+			ctx.fillStyle = 'white'
+			ctx.fillRect(0, 0, img.width, img.height)
 			ctx.drawImage(img, 0, 0)
 			URL.revokeObjectURL(img.src)
 
@@ -94,6 +95,53 @@ function svgToCanvas(id) {
 		}
 	})
 }
+
+// note: this function also deletes something if you intersect the edge of a bbox, so it can erase things even if you aren't over it completely - especially if it is a diagonal.
+function erasePathsInRect(x, y, width, height) {
+	const rectLeft = x
+	const rectRight = x + width
+	const rectTop = y
+	const rectBottom = y + height
+
+	paths.value = paths.value.filter((path) => {
+		const element = document.querySelector(`[data-id="${path.id}"]`)
+		if (!element) return true
+
+		const bbox = element.getBBox()
+		const boxLeft = bbox.x
+		const boxRight = bbox.x + bbox.width
+		const boxTop = bbox.y
+		const boxBottom = bbox.y + bbox.height
+
+		// fully inside
+		const fullyInside =
+			boxLeft >= rectLeft &&
+			boxRight <= rectRight &&
+			boxTop >= rectTop &&
+			boxBottom <= rectBottom
+
+		// partial overlap
+		const intersects = !(
+			boxRight < rectLeft ||
+			boxLeft > rectRight ||
+			boxBottom < rectTop ||
+			boxTop > rectBottom
+		)
+
+		// selection fully inside path bbox (path contains selection)
+		const containsSelection =
+			rectLeft >= boxLeft &&
+			rectRight <= boxRight &&
+			rectTop >= boxTop &&
+			rectBottom <= boxBottom
+
+		// erase if fully inside or intersecting, but not if it contains selection
+		const shouldErase = (fullyInside || intersects) && !containsSelection
+
+		return !shouldErase
+	})
+}
+
 
 const pen = {
 	onDown(event) {
@@ -141,17 +189,17 @@ const eraser = {
 	onMove(event) {
 		if (event.buttons !== 1) return
 
-		const current = { x: event.clientX, y: event.clientY }
-		const prev = previousMousePos
+		const startPos = previousMousePos
+		const endPos = { x: event.clientX, y: event.clientY }
 
-		const dx = current.x - prev.x
-		const dy = current.y - prev.y
+		const dx = endPos.x - startPos.x
+		const dy = endPos.y - startPos.y
 		const distance = Math.hypot(dx, dy)
 		const steps = Math.max(1, Math.ceil(distance))
 
 		for (let i = 0; i <= steps; i++) {
-			const x = prev.x + (dx * i) / steps
-			const y = prev.y + (dy * i) / steps
+			const x = startPos.x + (dx * i) / steps
+			const y = startPos.y + (dy * i) / steps
 
 			const elements = document.elementsFromPoint(x, y)
 
@@ -199,11 +247,17 @@ const selector = {
 
 		if (DEBUG.downloadPNG) downloadCanvasPNG(croppedCanvas)
 
+		// TODO insert expression
+
 		// reset
 		this.endX.value = event.clientX
 		this.endY.value = event.clientY
-
 		this.isActive.value = false
+
+		// erase strokes and switch to pen
+		erasePathsInRect(x, y, width, height)
+
+		activeTool.value = 'pen'
 	},
 }
 
@@ -279,12 +333,6 @@ function SVGMouseUp(event) {
 			<img :src="`./assets/${tool}.svg`" class="toolbar-image" draggable="false" />
 		</button>
 	</div>
-
-	<!--
-  @touchstart.prevent="SVGTouchStart"
-  @touchmove.prevent="SVGTouchMove"
-  @touchend.prevent="SVGTouchEnd"
-  @touchcancel.prevent="SVGTouchEnd" -->
 	<svg
 		id="inputSVG"
 		class="inputSVG"
@@ -373,7 +421,7 @@ TODO:
 
 @keyframes ants {
 	to {
-		stroke-dashoffset: -22; /* 12 + 8 */
+		stroke-dashoffset: -22; /* 12 + 10 */
 	}
 }
 /* ============================================== */

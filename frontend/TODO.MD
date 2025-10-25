@@ -2,7 +2,6 @@
 
 ### HMER
 
-- _10/20/25_ Mon - Complete snippet tool functionality and animation. Save PNGs to drive
 - _10/21/25_ Tue - Complete HMER model API thing and add MathJax support to a test application - possibly add expression component to app :)
 
 ---
