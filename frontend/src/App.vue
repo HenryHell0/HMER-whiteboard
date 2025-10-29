@@ -13,6 +13,8 @@ const paths = ref([]) // consider putting this inside pen object? consideration 
 const previousMousePos = { x: -1, y: -1 }
 const previousOffsetPos = { x: -1, y: -1 }
 
+const testExpression = ref('hello')
+
 // TODO make this change the converted SVG styles to these for optimization
 // const svgToPngStyles = {
 // 	stroke: 'black',
@@ -23,6 +25,7 @@ const previousOffsetPos = { x: -1, y: -1 }
 const DEBUG = {
 	logMouseMovements: false,
 	downloadPNG: false,
+	logLatex: true,
 }
 
 function serializeSVG(svgElement) {
@@ -151,8 +154,7 @@ async function recognizeCanvas(canvas) {
 	})
 	const latex = await response.text()
 
-	// temp
-	console.log(latex)
+	return latex
 }
 
 const pen = {
@@ -259,11 +261,6 @@ const selector = {
 		const height = Math.abs(this.endY.value - this.startY.value)
 		cropCanvas(croppedCanvas, fullCanvas, x, y, width, height)
 
-		if (DEBUG.downloadPNG) downloadCanvasPNG(croppedCanvas)
-
-		// TODO insert expression - probably refactor toooooo a different function
-		recognizeCanvas(croppedCanvas)
-
 		// reset
 		this.endX.value = event.clientX
 		this.endY.value = event.clientY
@@ -273,6 +270,20 @@ const selector = {
 		erasePathsInRect(x, y, width, height)
 
 		activeTool.value = 'pen'
+
+		// recognize expression
+		const latex = recognizeCanvas(croppedCanvas)
+
+		/* TODO
+		- create expression component with "loading"
+		- add latex to expression component
+		*/
+
+		testExpression.value = await latex
+
+		// debug stuff
+		if (DEBUG.downloadPNG) downloadCanvasPNG(croppedCanvas)
+		if (DEBUG.logLatex) console.log(await latex)
 	},
 }
 
@@ -357,7 +368,6 @@ function SVGMouseUp(event) {
 	>
 		<path v-for="path in paths" :d="path.d" class="stroke" :key="path.id" :data-id="path.id" />
 
-		<!-- evil live path (slow?) (bad?)  -->
 		<path
 			v-if="currentStroke.length > 1"
 			:d="
@@ -382,6 +392,9 @@ function SVGMouseUp(event) {
 		/>
 		\
 	</svg>
+
+	<!-- test formula -->
+	<vue-mathjax :formula="`$$${testExpression}$$`" class="expression" />
 </template>
 
 <style>
@@ -497,5 +510,14 @@ TODO:
 	transform: scale(1.2);
 }
 
+/* ========================*/
+
+/* ============EXPRESSION COMPONENT (move later) (temp temp temp)============*/
+.expression {
+	z-index: 2;
+	position: absolute;
+	top: 500px;
+	left: 500px;
+}
 /* ========================*/
 </style>

@@ -1,4 +1,8 @@
 import { createApp } from 'vue'
 import App from './App.vue'
+import VueMathjax from 'vue-mathjax-next'
 
-createApp(App).mount('#app')
+const app = createApp(App)
+app.use(VueMathjax)
+
+app.mount('#app')

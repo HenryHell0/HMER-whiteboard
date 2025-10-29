@@ -17,7 +17,8 @@
 		"deploy": "gh-pages -d dist"
 	},
 	"dependencies": {
-		"vue": "^3.5.22"
+		"vue": "^3.5.22",
+		"vue-mathjax-next": "^0.0.6"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.33.0",
