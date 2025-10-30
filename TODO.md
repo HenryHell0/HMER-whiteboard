@@ -57,6 +57,7 @@ _priority from 0/10 + type_
 
 - 11 fix - finish the damn app
 - 10 feature - UNDO and REDO button!
+- 10 feature - editable expression component!
 - 8 polish - an info/credits button in the right
 - 3 polish - a little tutorial when you start
 - 4 polish - switch HMER select button to having a little AI star

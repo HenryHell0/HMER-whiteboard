@@ -7,13 +7,27 @@ path - d prop for <path> element - a string with path data
 stroke - user input (position stuff)
 */
 import { ref } from 'vue'
+import Expression from './components/Expression.vue'
+import Toolbar from './components/Toolbar.vue'
 
 var currentStroke = ref([])
 const paths = ref([]) // consider putting this inside pen object? consideration of format etc ykyk
 const previousMousePos = { x: -1, y: -1 }
 const previousOffsetPos = { x: -1, y: -1 }
+const expressions = ref([])
+const isDragging = ref(false)
 
-const testExpression = ref('hello')
+class ExpressionData {
+	constructor(formula, x, y, width, height) {
+		this.formula = formula
+		this.x = x
+		this.y = y
+		this.width = width
+		this.height = height
+		this.id = crypto.randomUUID()
+	}
+}
+// expressions.value.push(new ExpressionData('x^2+2x-1', 249, 326, 515, 150))
 
 // TODO make this change the converted SVG styles to these for optimization
 // const svgToPngStyles = {
@@ -58,7 +72,7 @@ function downloadCanvasPNG(canvas) {
 	document.body.removeChild(downloadLinkElement)
 }
 
-function svgToCanvas(id) {
+async function svgToCanvas(id) {
 	return new Promise((resolve, reject) => {
 		const svgElement = document.getElementById(id)
 		// ! fix styles
@@ -279,7 +293,8 @@ const selector = {
 		- add latex to expression component
 		*/
 
-		testExpression.value = await latex
+		expressions.value.push(new ExpressionData(latex, x, y, width, height)) // make it first so it can load and say loading...
+		expressions.value.at(-1).formula = await latex // update latex when its done
 
 		// debug stuff
 		if (DEBUG.downloadPNG) downloadCanvasPNG(croppedCanvas)
@@ -296,10 +311,12 @@ const tools = new Map([
 ])
 
 function SVGMouseDown(event) {
+	if (isDragging.value) return
 	tools.get(activeTool.value).onDown?.(event)
 }
 
 function SVGMouseMove(event) {
+	if (isDragging.value) return
 	tools.get(activeTool.value).onMove?.(event)
 	previousMousePos.x = event.clientX
 	previousMousePos.y = event.clientY
@@ -314,6 +331,7 @@ function SVGMouseMove(event) {
 }
 
 function SVGMouseUp(event) {
+	if (isDragging.value) return
 	tools.get(activeTool.value).onUp?.(event)
 }
 
@@ -348,53 +366,58 @@ function SVGMouseUp(event) {
 </script>
 
 <template>
-	<div class="toolbar">
-		<button
-			v-for="tool in toolList"
-			:key="tool"
-			@click="activeTool = tool"
-			:class="{ active: activeTool === tool }"
-			class="toolbar-button"
+	<div class="template">
+		<Toolbar @updateTool="(tool) => (activeTool = tool)" :toolList :activeTool> </Toolbar>
+
+		<svg
+			id="inputSVG"
+			class="inputSVG"
+			@mousedown="SVGMouseDown"
+			@mouseup="SVGMouseUp"
+			@mousemove="SVGMouseMove"
 		>
-			<img :src="`./assets/${tool}.svg`" class="toolbar-image" draggable="false" />
-		</button>
+			<path
+				v-for="path in paths"
+				:d="path.d"
+				class="stroke"
+				:key="path.id"
+				:data-id="path.id"
+			/>
+
+			<path
+				v-if="currentStroke.length > 1"
+				:d="
+					`M ${currentStroke[0].x},${currentStroke[0].y} ` +
+					currentStroke
+						.slice(1)
+						.map((p) => `L ${p.x},${p.y}`)
+						.join(' ')
+				"
+				class="stroke"
+			/>
+		</svg>
+
+		<svg class="overlaySVG">
+			<rect
+				v-if="selector.isActive.value"
+				class="selection-rect"
+				:x="Math.min(selector.startX.value, selector.endX.value)"
+				:y="Math.min(selector.startY.value, selector.endY.value)"
+				:width="Math.abs(selector.endX.value - selector.startX.value)"
+				:height="Math.abs(selector.endY.value - selector.startY.value)"
+			/>
+			\
+		</svg>
+
+		<!-- test formula -->
+		<Expression
+			v-for="expression in expressions"
+			v-bind="expression"
+			v-model:isDragging="isDragging"
+			:key="expression.id"
+			@removeExpression="(id) => (expressions = expressions.filter((e) => e.id != id))"
+		></Expression>
 	</div>
-	<svg
-		id="inputSVG"
-		class="inputSVG"
-		@mousedown="SVGMouseDown"
-		@mouseup="SVGMouseUp"
-		@mousemove="SVGMouseMove"
-	>
-		<path v-for="path in paths" :d="path.d" class="stroke" :key="path.id" :data-id="path.id" />
-
-		<path
-			v-if="currentStroke.length > 1"
-			:d="
-				`M ${currentStroke[0].x},${currentStroke[0].y} ` +
-				currentStroke
-					.slice(1)
-					.map((p) => `L ${p.x},${p.y}`)
-					.join(' ')
-			"
-			class="stroke"
-		/>
-	</svg>
-
-	<svg class="overlaySVG">
-		<rect
-			v-if="selector.isActive.value"
-			class="selection-rect"
-			:x="Math.min(selector.startX.value, selector.endX.value)"
-			:y="Math.min(selector.startY.value, selector.endY.value)"
-			:width="Math.abs(selector.endX.value - selector.startX.value)"
-			:height="Math.abs(selector.endY.value - selector.startY.value)"
-		/>
-		\
-	</svg>
-
-	<!-- test formula -->
-	<vue-mathjax :formula="`$$${testExpression}$$`" class="expression" />
 </template>
 
 <style>
@@ -404,6 +427,14 @@ TODO:
 - add some color to the toolbar (blue active tool?)
 - add custom cursor for eraser etc (only applies for mouse not stylus)
 */
+
+/* ========= WHOLE THING ===== */
+
+.template {
+	font-family: roboto;
+}
+
+/* ============================== */
 
 /* =========== SVG STYLES ========== */
 
@@ -454,7 +485,7 @@ TODO:
 }
 /* ============================================== */
 
-/* ============== toolbar styles ================== */
+/* ============== toolbar styles ==================
 .toolbar {
 	position: absolute;
 	top: 10px;
@@ -471,10 +502,6 @@ TODO:
 	user-select: none;
 }
 
-/* .toolbar:hover {
-  transform: scale(1.1);
-} */
-
 .toolbar-image {
 	width: 1.5rem;
 	height: 1.5rem;
@@ -487,7 +514,6 @@ TODO:
 	padding: 8px 10px;
 	border-radius: 10000px;
 	border: none;
-	/* background-color: #eee; */
 	cursor: pointer;
 	user-select: none;
 	transition:
@@ -510,14 +536,5 @@ TODO:
 	transform: scale(1.2);
 }
 
-/* ========================*/
-
-/* ============EXPRESSION COMPONENT (move later) (temp temp temp)============*/
-.expression {
-	z-index: 2;
-	position: absolute;
-	top: 500px;
-	left: 500px;
-}
-/* ========================*/
+======================== */
 </style>
