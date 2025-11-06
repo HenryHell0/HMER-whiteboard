@@ -18,7 +18,6 @@ const { toolList, activeTool } = defineProps({
 	</div>
 </template>
 <style scoped>
-/* ============== toolbar styles ================== */
 .toolbar {
 	position: absolute;
 	top: 10px;
@@ -34,10 +33,6 @@ const { toolList, activeTool } = defineProps({
 	z-index: 100;
 	user-select: none;
 }
-
-/* .toolbar:hover {
-  transform: scale(1.1);
-} */
 
 .toolbar-image {
 	width: 1.5rem;
@@ -73,6 +68,4 @@ const { toolList, activeTool } = defineProps({
 	background-color: #c0c0c0;
 	transform: scale(1.2);
 }
-
-/* ========================*/
 </style>
