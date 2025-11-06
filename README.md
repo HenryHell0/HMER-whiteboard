@@ -10,7 +10,7 @@ An interactive, Handwritten Mathematical Expression Regonition (HMER)-based whit
 ### Progress:
 https://github.com/user-attachments/assets/0688a61b-486d-4b32-8adc-7303103bcff6
 
-Try out a recent version on [Github Pages](https://henryhell0.github.io) (probalby not updated fully)
+Try out a recent version on [Github Pages](https://henryhell0.github.io/HMER-whiteboard/) (probably not updated fully)
 
 ### Installation Instructions:
 - Install [TexTeller](https://github.com/OleehyO/TexTeller)
