@@ -6,53 +6,44 @@ NAMING CONVENTIONS:
 path - d prop for <path> element - a string with path data
 stroke - user input (position stuff)
 */
-import { ref } from 'vue'
-import Toolbar from './components/Toolbar.vue'
-import Widget from './components/Widget.vue'
-import {
-	WidgetData,
-	ExpressionData,
-	GraphData,
-	widgets,
-	stopCanvasInput,
-	widgetComponents,
-} from './utils/widgets'
-import {
-	activeTool,
-	toolList,
-	tools,
-	paths,
-	currentStroke,
-	previousMousePos,
-} from './utils/drawingTools'
+import Toolbar from './components/core/Toolbar.vue'
+import Widget from './components/core/Widget.vue'
+import OverlaySvg from './components/overlay/OverlaySvg.vue'
 
-const widgetZIndexCount = ref(2)
-const heldWidgetId = ref('')
+import { WidgetData, ExpressionData, GraphData, widgetComponents } from './utils/widgets'
+import { toolList, tools } from './utils/drawingTools'
 
-const DEBUG = {
-	createTestExpression: true,
-	createTestGraph: true,
-}
+import DEBUG from './utils/debug'
+
+import { useWidgetStore } from './stores/useWidgetStore'
+import { useCanvasStore } from './stores/useCanvasStore'
+import { useSessionStore } from './stores/useSessionStore'
+
+const widgetStore = useWidgetStore()
+const canvasStore = useCanvasStore()
+const sessionStore = useSessionStore()
 
 if (DEBUG.createTestExpression) {
-	widgets.value.push(new WidgetData(100, 100, 515, 150, new ExpressionData('x^2+2x-1')))
+	widgetStore.widgets.push(new WidgetData(100, 100, 515, 150, new ExpressionData('x^2+2x-1')))
 	// expressions.value.push(new ExpressionData('x^2+2x-1', 249, 326, 515, 150))
 }
 
 if (DEBUG.createTestGraph) {
-	widgets.value.push(new WidgetData(410, 300, 714, 615, new GraphData(['x^2+2x-1', '\\sin(x)'])))
+	widgetStore.widgets.push(
+		new WidgetData(410, 300, 714, 615, new GraphData(['x^2+2x-1', '\\sin(x)'])),
+	)
 }
 
 function SVGMouseDown(event) {
-	if (stopCanvasInput.value) return
-	tools[activeTool.value].onDown?.(event)
+	if (sessionStore.stopCanvasInput) return
+	tools[sessionStore.activeTool].onDown?.(event)
 }
 
 function SVGMouseMove(event) {
-	if (stopCanvasInput.value) return
-	tools[activeTool.value].onMove?.(event)
-	previousMousePos.x = event.clientX
-	previousMousePos.y = event.clientY
+	if (sessionStore.stopCanvasInput) return
+	tools[sessionStore.activeTool].onMove?.(event)
+	sessionStore.previousMousePos.x = event.clientX
+	sessionStore.previousMousePos.y = event.clientY
 
 	if (DEBUG.logMouseMovements) {
 		console.log(
@@ -62,8 +53,8 @@ function SVGMouseMove(event) {
 }
 
 function SVGMouseUp(event) {
-	if (stopCanvasInput.value) return
-	tools[activeTool.value].onUp?.(event)
+	if (sessionStore.stopCanvasInput) return
+	tools[sessionStore.activeTool].onUp?.(event)
 }
 
 // attempt at mobile support
@@ -98,7 +89,7 @@ function SVGMouseUp(event) {
 
 <template>
 	<div class="template">
-		<Toolbar @updateTool="(tool) => (activeTool = tool)" :toolList :activeTool> </Toolbar>
+		<Toolbar :toolList> </Toolbar>
 
 		<svg
 			id="inputSVG"
@@ -108,7 +99,7 @@ function SVGMouseUp(event) {
 			@mousemove="SVGMouseMove"
 		>
 			<path
-				v-for="path in paths"
+				v-for="path in canvasStore.paths"
 				:d="path.d"
 				class="stroke"
 				:key="path.id"
@@ -116,10 +107,10 @@ function SVGMouseUp(event) {
 			/>
 
 			<path
-				v-if="currentStroke.length > 1"
+				v-if="sessionStore.currentStroke.length > 1"
 				:d="
-					`M ${currentStroke[0].x},${currentStroke[0].y} ` +
-					currentStroke
+					`M ${sessionStore.currentStroke[0].x},${sessionStore.currentStroke[0].y} ` +
+					sessionStore.currentStroke
 						.slice(1)
 						.map((p) => `L ${p.x},${p.y}`)
 						.join(' ')
@@ -128,34 +119,18 @@ function SVGMouseUp(event) {
 			/>
 		</svg>
 
-		<svg class="overlaySVG">
-			<rect
-				v-if="tools['selector'].isActive.value"
-				class="selection-rect"
-				:x="Math.min(tools['selector'].startX.value, tools['selector'].endX.value)"
-				:y="Math.min(tools['selector'].startY.value, tools['selector'].endY.value)"
-				:width="Math.abs(tools['selector'].endX.value - tools['selector'].startX.value)"
-				:height="Math.abs(tools['selector'].endY.value - tools['selector'].startY.value)"
-			/>
-			\
-		</svg>
+		<OverlaySvg :tools="tools"></OverlaySvg>
 
 		<div class="widget-container">
 			<Widget
-				v-for="widget in widgets"
+				v-for="widget in widgetStore.widgets"
 				v-bind="widget"
-				v-model:zIndexCount="widgetZIndexCount"
-				v-model:heldWidgetId="heldWidgetId"
-				v-model:stopCanvasInput="stopCanvasInput"
 				:key="widget.id"
-				@deleteWidget="(id) => (widgets = widgets.filter((e) => e.id != id))"
+				@deleteWidget="
+					(id) => (widgetStore.widgets = widgetStore.widgets.filter((e) => e.id != id))
+				"
 			>
-				<component
-					:is="widgetComponents[widget.type]"
-					:data="widget.data"
-					:heldWidgetId="heldWidgetId"
-					v-model:widgets="widgets"
-				></component>
+				<component :is="widgetComponents[widget.type]" :data="widget.data"></component>
 			</Widget>
 		</div>
 	</div>
@@ -196,33 +171,6 @@ TODO:
 	stroke: black;
 	stroke-width: 2;
 	pointer-events: stroke;
-}
-
-.overlaySVG {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	height: 100vh;
-	pointer-events: none;
-	z-index: 1;
-}
-
-.selection-rect {
-	stroke: black;
-	fill: rgba(0, 0, 0, 0.1);
-	stroke-width: 3;
-	stroke-dasharray: 12 10;
-	stroke-linecap: round;
-	rx: 8;
-	ry: 8;
-	animation: ants 0.8s linear infinite;
-}
-
-@keyframes ants {
-	to {
-		stroke-dashoffset: -22; /* 12 + 10 */
-	}
 }
 /* ============================================== */
 

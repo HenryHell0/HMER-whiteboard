@@ -2,6 +2,11 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useDrag, useResize } from '@/composables/useDraggables'
 import { stopCanvasInput } from '@/composables/useDraggables'
+import { useWidgetStore } from '@/stores/useWidgetStore'
+import { useSessionStore } from '@/stores/useSessionStore'
+
+const widgetStore = useWidgetStore()
+const sessionStore = useSessionStore()
 
 var element = ref(null)
 const props = defineProps({
@@ -12,12 +17,10 @@ const props = defineProps({
 	id: String,
 	data: Object,
 })
-const heldWidgetId = defineModel('heldWidgetId')
-const stopCanvasInputModel = defineModel('stopCanvasInput')
-const zIndex = ref(1)
-const zIndexCount = defineModel('zIndexCount')
+const zIndex = ref(2)
+//! fix
 watch(stopCanvasInput, () => {
-	stopCanvasInputModel.value = stopCanvasInput.value
+	sessionStore.stopCanvasInput = stopCanvasInput.value
 })
 
 const { dragStart, dragMove, dragEnd, dragging, x, y } = useDrag(props.x, props.y)
@@ -46,10 +49,10 @@ const styles = computed(() => {
 function toolbarClicked(event) {
 	dragStart(event)
 
-	heldWidgetId.value = props.id
+	sessionStore.heldWidgetId = props.id
 
-	zIndexCount.value++
-	zIndex.value = zIndexCount.value
+	widgetStore.zIndexCount++
+	zIndex.value = widgetStore.zIndexCount
 }
 
 function toolBarMove(event) {
@@ -64,7 +67,7 @@ function toolbarReleased() {
 	if (!element.value) return
 	element.value.style.pointerEvents = 'fill'
 
-	heldWidgetId.value = ''
+	sessionStore.heldWidgetId = ''
 }
 
 // draggability stuff
@@ -93,7 +96,7 @@ onUnmounted(() => {
 			<div class="title">{{ data.type }}</div>
 			<div class="x-button-container">
 				<img
-					src="./../../assets/x.svg"
+					src="/assets/x.svg"
 					@click="$emit('deleteWidget', id)"
 					class="x-button"
 					draggable="false"

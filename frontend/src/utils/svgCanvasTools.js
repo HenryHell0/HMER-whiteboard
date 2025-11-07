@@ -1,3 +1,5 @@
+import { useCanvasStore } from '@/stores/useCanvasStore'
+
 function serializeSVG(svgElement) {
 	// try to fix to get this stuff working lololol
 	for (let path of svgElement.children) {
@@ -79,4 +81,52 @@ export async function recognizeCanvas(canvas) {
 	const latex = await response.text()
 
 	return latex
+}
+
+export function erasePathsInRect(x, y, width, height) {
+	const canvasStore = useCanvasStore()
+	// this function also deletes something if you intersect the edge of a bbox, so it can erase things even if you aren't over it completely - especially if it is a diagonal.
+
+	const rectLeft = x
+	const rectRight = x + width
+	const rectTop = y
+	const rectBottom = y + height
+
+	canvasStore.paths = canvasStore.paths.filter((path) => {
+		const element = document.querySelector(`[data-id="${path.id}"]`)
+		if (!element) return true
+
+		const bbox = element.getBBox()
+		const boxLeft = bbox.x
+		const boxRight = bbox.x + bbox.width
+		const boxTop = bbox.y
+		const boxBottom = bbox.y + bbox.height
+
+		// fully inside
+		const fullyInside =
+			boxLeft >= rectLeft &&
+			boxRight <= rectRight &&
+			boxTop >= rectTop &&
+			boxBottom <= rectBottom
+
+		// partial overlap
+		const intersects = !(
+			boxRight < rectLeft ||
+			boxLeft > rectRight ||
+			boxBottom < rectTop ||
+			boxTop > rectBottom
+		)
+
+		// selection fully inside path bbox (path contains selection)
+		const containsSelection =
+			rectLeft >= boxLeft &&
+			rectRight <= boxRight &&
+			rectTop >= boxTop &&
+			rectBottom <= boxBottom
+
+		// erase if fully inside or intersecting, but not if it contains selection
+		const shouldErase = (fullyInside || intersects) && !containsSelection
+
+		return !shouldErase
+	})
 }

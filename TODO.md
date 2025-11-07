@@ -3,6 +3,8 @@
 next, I want to finish up graphs and figure out how exaclty I want them to look
 I also want to rework the toolbar to support a button to add a blank graph.
 
+- MORE IMPORTANTLY FIX THE CURSOR AND THE HOVERING WITH THE POINTER EVENTS: NONE ON THE WIDGETS FOR THE GRAPH DRAGGING!!!!
+
 ### solving component _hard!_
 
 _note that when we do this we will have to switch backend to FastAPI and change vite proxies_

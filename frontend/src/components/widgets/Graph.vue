@@ -1,11 +1,14 @@
 <script setup>
-import { ref, toRef, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useWidgetStore } from '@/stores/useWidgetStore'
+import { useSessionStore } from '@/stores/useSessionStore'
 import Desmos from 'desmos'
 
-const props = defineProps(['data', 'heldWidgetId']) //* will be defineModel later casue we will be removing some of them
-const data = props.data
-const heldWidgetId = toRef(() => props.heldWidgetId)
-const widgets = defineModel('widgets')
+const widgetStore = useWidgetStore()
+const sessionStore = useSessionStore()
+
+const props = defineProps(['data']) //* will be defineModel later casue we will be removing some of them
+const data = props.data //! not reactive
 let graphs = ref(data.graphs)
 const graphElement = ref(null)
 var calculator
@@ -22,12 +25,12 @@ function addGraph(latex) {
 }
 
 async function importExpression() {
-	if (!heldWidgetId.value) return
-	const heldWidget = widgets.value.find((e) => e.id === heldWidgetId.value)
+	if (!sessionStore.heldWidgetId) return
+	const heldWidget = widgetStore.widgets.find((e) => e.id === sessionStore.heldWidgetId)
 	if (!heldWidget) return
 
-	// delete graph
-	widgets.value = widgets.value.filter((e) => e.id != heldWidget.id)
+	// delete expression
+	widgetStore.widgets = widgetStore.widgets.filter((e) => e.id != heldWidget.id)
 
 	// add it
 	addGraph(await heldWidget.data.latex)

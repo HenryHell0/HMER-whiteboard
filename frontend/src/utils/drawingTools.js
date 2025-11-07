@@ -1,6 +1,10 @@
 import { ref } from 'vue'
 import { cropCanvas, downloadCanvasPNG, svgToCanvas, recognizeCanvas } from './svgCanvasTools'
-import { WidgetData, widgets, ExpressionData } from '@/utils/widgets'
+import { WidgetData, ExpressionData } from '@/utils/widgets'
+import { erasePathsInRect } from './svgCanvasTools'
+import { useWidgetStore } from '@/stores/useWidgetStore'
+import { useCanvasStore } from '@/stores/useCanvasStore'
+import { useSessionStore } from '@/stores/useSessionStore'
 
 const DEBUG = {
 	logMouseMovements: false,
@@ -9,22 +13,22 @@ const DEBUG = {
 	createTestExpression: true,
 }
 
-export const currentStroke = ref([])
-export const paths = ref([]) // consider putting this inside pen object? consideration of format etc ykyk
-export const previousMousePos = { x: -1, y: -1 }
-
 const pen = {
 	onDown(event) {
+		const sessionStore = useSessionStore()
 		let startPos = { x: event.offsetX, y: event.offsetY }
-		currentStroke.value = [startPos]
+		sessionStore.currentStroke = [startPos]
 	},
 	onMove(event) {
 		if (event.buttons !== 1) return
+		const sessionStore = useSessionStore()
 
 		let point = { x: event.offsetX, y: event.offsetY }
-		currentStroke.value.push(point)
+		sessionStore.currentStroke.push(point)
 	},
 	onUp() {
+		const sessionStore = useSessionStore()
+		const canvasStore = useCanvasStore()
 		// "d" is the path param for <path> elemtn
 		let d = ''
 
@@ -34,78 +38,34 @@ const pen = {
       index ...: C x, y
     */
 
-		if (currentStroke.value.length == 1) {
+		if (sessionStore.currentStroke.length == 1) {
 			// lil circle
 			//? maybe switcch this to do a filled in circle somehow
 			let radius = 1
-			d += `M ${currentStroke.value[0].x},${currentStroke.value[0].y - radius}`
+			d += `M ${sessionStore.currentStroke[0].x},${sessionStore.currentStroke[0].y - radius}`
 			d += `a ${radius} ${radius} 0 1 0 0.0001 0`
 		} else {
 			// line
-			d += `M ${currentStroke.value[0].x},${currentStroke.value[0].y} `
+			d += `M ${sessionStore.currentStroke[0].x},${sessionStore.currentStroke[0].y} `
 			d += 'L '
 
-			for (let i = 1; i < currentStroke.value.length; i++) {
-				d += `${currentStroke.value[i].x},${currentStroke.value[i].y} `
+			for (let i = 1; i < sessionStore.currentStroke.length; i++) {
+				d += `${sessionStore.currentStroke[i].x},${sessionStore.currentStroke[i].y} `
 			}
 		}
 
-		paths.value.push({ d: d, id: crypto.randomUUID() })
+		canvasStore.paths.push({ d: d, id: crypto.randomUUID() })
 		// clear path
-		currentStroke.value = []
+		sessionStore.currentStroke = []
 	},
 }
 const eraser = {
-	erasePathsInRect(x, y, width, height) {
-		// this function also deletes something if you intersect the edge of a bbox, so it can erase things even if you aren't over it completely - especially if it is a diagonal.
-
-		const rectLeft = x
-		const rectRight = x + width
-		const rectTop = y
-		const rectBottom = y + height
-
-		paths.value = paths.value.filter((path) => {
-			const element = document.querySelector(`[data-id="${path.id}"]`)
-			if (!element) return true
-
-			const bbox = element.getBBox()
-			const boxLeft = bbox.x
-			const boxRight = bbox.x + bbox.width
-			const boxTop = bbox.y
-			const boxBottom = bbox.y + bbox.height
-
-			// fully inside
-			const fullyInside =
-				boxLeft >= rectLeft &&
-				boxRight <= rectRight &&
-				boxTop >= rectTop &&
-				boxBottom <= rectBottom
-
-			// partial overlap
-			const intersects = !(
-				boxRight < rectLeft ||
-				boxLeft > rectRight ||
-				boxBottom < rectTop ||
-				boxTop > rectBottom
-			)
-
-			// selection fully inside path bbox (path contains selection)
-			const containsSelection =
-				rectLeft >= boxLeft &&
-				rectRight <= boxRight &&
-				rectTop >= boxTop &&
-				rectBottom <= boxBottom
-
-			// erase if fully inside or intersecting, but not if it contains selection
-			const shouldErase = (fullyInside || intersects) && !containsSelection
-
-			return !shouldErase
-		})
-	},
 	onMove(event) {
+		const sessionStore = useSessionStore()
+		const canvasStore = useCanvasStore()
 		if (event.buttons !== 1) return
 
-		const startPos = previousMousePos
+		const startPos = sessionStore.previousMousePos
 		const endPos = { x: event.clientX, y: event.clientY }
 
 		const dx = endPos.x - startPos.x
@@ -125,7 +85,7 @@ const eraser = {
 				const id = pathElement.dataset.id
 				// NOTICE this changes in indicies
 				// we could instead just set it to 0 or something
-				paths.value = paths.value.filter((p) => p.id != id)
+				canvasStore.paths = canvasStore.paths.filter((p) => p.id != id)
 			}
 		}
 	},
@@ -152,6 +112,9 @@ const selector = {
 		this.endY.value = event.clientY
 	},
 	async onUp(event) {
+		const widgetStore = useWidgetStore()
+		const sessionStore = useSessionStore()
+
 		// convert svg to png!!
 		const fullCanvas = await svgToCanvas('inputSVG')
 
@@ -169,9 +132,9 @@ const selector = {
 		this.isActive.value = false
 
 		// erase strokes and switch to pen
-		eraser.erasePathsInRect(x, y, width, height)
+		erasePathsInRect(x, y, width, height)
 
-		activeTool.value = 'pen'
+		sessionStore.activeTool = 'pen'
 
 		// recognize expression
 		const latex = recognizeCanvas(croppedCanvas)
@@ -180,9 +143,8 @@ const selector = {
 		- create expression component with "loading"
 		- add latex to expression component
 		*/
-
-		widgets.value.push(new WidgetData(x, y, width, height, new ExpressionData(latex))) // make it first so it can load and say loading...
-		widgets.value.at(-1).data.latex = await latex // update latex when its done
+		widgetStore.widgets.push(new WidgetData(x, y, width, height, new ExpressionData(latex))) // make it first so it can load and say loading...
+		widgetStore.widgets.at(-1).data.latex = await latex // update latex when its done
 
 		// debug stuff
 		if (DEBUG.downloadPNG) downloadCanvasPNG(croppedCanvas)
@@ -190,7 +152,6 @@ const selector = {
 	},
 }
 
-export const activeTool = ref('pen')
 export const toolList = ['pen', 'eraser', 'selector']
 export const tools = {
 	pen: pen,

@@ -1,9 +1,5 @@
-import { ref } from 'vue'
 import Expression from '@/components/widgets/Expression.vue'
 import Graph from '@/components/widgets/Graph.vue'
-
-export const widgets = ref([])
-export const stopCanvasInput = ref(false)
 
 export const widgetComponents = {
 	Expression: Expression,

@@ -1,16 +1,15 @@
 <script setup>
-const { toolList, activeTool } = defineProps({
-	toolList: Array,
-	activeTool: String,
-})
+import { useSessionStore } from '@/stores/useSessionStore'
+import { toolList } from '@/utils/drawingTools'
+const sessionStore = useSessionStore()
 </script>
 <template>
 	<div class="toolbar">
 		<button
 			v-for="tool in toolList"
 			:key="tool"
-			@click="$emit('updateTool', tool)"
-			:class="{ active: activeTool === tool }"
+			@click="sessionStore.activeTool = tool"
+			:class="{ active: sessionStore.activeTool === tool }"
 			class="toolbar-button"
 		>
 			<img :src="`./assets/${tool}.svg`" class="toolbar-image" draggable="false" />
