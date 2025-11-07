@@ -6,10 +6,17 @@ NAMING CONVENTIONS:
 path - d prop for <path> element - a string with path data
 stroke - user input (position stuff)
 */
+import { ref } from 'vue'
 import Toolbar from './components/Toolbar.vue'
 import Widget from './components/Widget.vue'
-import Expression from './components/Expression.vue'
-import { WidgetData, ExpressionData, widgets, stopCanvasInput } from './utils/widgets'
+import {
+	WidgetData,
+	ExpressionData,
+	GraphData,
+	widgets,
+	stopCanvasInput,
+	widgetComponents,
+} from './utils/widgets'
 import {
 	activeTool,
 	toolList,
@@ -19,17 +26,21 @@ import {
 	previousMousePos,
 } from './utils/drawingTools'
 
-const widgetComponents = {
-	Expression: Expression,
-}
+const widgetZIndexCount = ref(2)
+const heldWidgetId = ref('')
 
 const DEBUG = {
 	createTestExpression: true,
+	createTestGraph: true,
 }
 
 if (DEBUG.createTestExpression) {
-	widgets.value.push(new WidgetData(249, 326, 515, 150, new ExpressionData('x^2+2x-1')))
+	widgets.value.push(new WidgetData(100, 100, 515, 150, new ExpressionData('x^2+2x-1')))
 	// expressions.value.push(new ExpressionData('x^2+2x-1', 249, 326, 515, 150))
+}
+
+if (DEBUG.createTestGraph) {
+	widgets.value.push(new WidgetData(410, 300, 714, 615, new GraphData(['x^2+2x-1', '\\sin(x)'])))
 }
 
 function SVGMouseDown(event) {
@@ -129,15 +140,24 @@ function SVGMouseUp(event) {
 			\
 		</svg>
 
-		<Widget
-			v-for="widget in widgets"
-			v-bind="widget"
-			v-model:stopCanvasInput="stopCanvasInput"
-			:key="widget.id"
-			@deleteWidget="(id) => (widgets = widgets.filter((e) => e.id != id))"
-		>
-			<component :is="widgetComponents[widget.type]" :data="widget.data"></component>
-		</Widget>
+		<div class="widget-container">
+			<Widget
+				v-for="widget in widgets"
+				v-bind="widget"
+				v-model:zIndexCount="widgetZIndexCount"
+				v-model:heldWidgetId="heldWidgetId"
+				v-model:stopCanvasInput="stopCanvasInput"
+				:key="widget.id"
+				@deleteWidget="(id) => (widgets = widgets.filter((e) => e.id != id))"
+			>
+				<component
+					:is="widgetComponents[widget.type]"
+					:data="widget.data"
+					:heldWidgetId="heldWidgetId"
+					v-model:widgets="widgets"
+				></component>
+			</Widget>
+		</div>
 	</div>
 </template>
 
@@ -206,56 +226,7 @@ TODO:
 }
 /* ============================================== */
 
-/* ============== toolbar styles ==================
-.toolbar {
-	position: absolute;
-	top: 10px;
-	left: 50%;
-	transform: translateX(-50%);
-	display: flex;
-	justify-content: center;
-	gap: 10px;
-	padding: 10px 10px;
-	background-color: rgba(255, 255, 255, 0.8);
-	border-radius: 1000000px;
-	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-	z-index: 100;
-	user-select: none;
+.widget-container {
+	isolation: isolate;
 }
-
-.toolbar-image {
-	width: 1.5rem;
-	height: 1.5rem;
-	fill: black;
-	transition: rotate 0.2s ease;
-}
-
-.toolbar-button {
-	all: unset;
-	padding: 8px 10px;
-	border-radius: 10000px;
-	border: none;
-	cursor: pointer;
-	user-select: none;
-	transition:
-		transform 0.15s ease,
-		background 0.3s ease;
-}
-
-.toolbar-button:hover {
-	transform: scale(1.1);
-	background: rgb(226, 226, 226);
-}
-
-.toolbar-button.active {
-	background-color: #c0c0c0;
-	transform: scale(1.1);
-}
-
-.toolbar-button.active:hover {
-	background-color: #c0c0c0;
-	transform: scale(1.2);
-}
-
-======================== */
 </style>

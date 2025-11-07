@@ -1,13 +1,13 @@
 <script setup>
 import { toRef } from 'vue'
 const { data } = defineProps(['data'])
-const formula = toRef(() => data.formula)
+const latex = toRef(() => data.latex)
 </script>
 <template>
 	<div class="content">
 		<vue-mathjax
-			v-if="typeof formula == 'string'"
-			:formula="`$$${formula}$$`"
+			v-if="typeof latex == 'string'"
+			:formula="`$$${latex}$$`"
 			class="expression"
 			:options="{ messageStyle: 'none' }"
 		/>
@@ -26,6 +26,7 @@ const formula = toRef(() => data.formula)
 }
 
 .expression :deep(.MathJax) {
+	/*!!!!!!! we antucally dont need this (whoa)*/
 	display: flex;
 	justify-content: center;
 	align-items: center;

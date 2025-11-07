@@ -1,7 +1,14 @@
 import { ref } from 'vue'
+import Expression from '@/components/widgets/Expression.vue'
+import Graph from '@/components/widgets/Graph.vue'
 
 export const widgets = ref([])
 export const stopCanvasInput = ref(false)
+
+export const widgetComponents = {
+	Expression: Expression,
+	Graph: Graph,
+}
 
 export class WidgetData {
 	constructor(x, y, width, height, data) {
@@ -16,8 +23,20 @@ export class WidgetData {
 }
 
 export class ExpressionData {
-	constructor(formula) {
+	constructor(latex) {
 		this.type = 'Expression'
-		this.formula = formula
+		this.latex = latex
+	}
+}
+
+export class GraphData {
+	constructor(latexExpressions = []) {
+		this.type = 'Graph'
+		this.graphs = []
+
+		for (const [i, latex] of latexExpressions.entries()) {
+			this.graphs[i] = { latex, color: '#000000', id: crypto.randomUUID() }
+		}
+		// TODO add viewbox, etc
 	}
 }

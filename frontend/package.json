@@ -17,6 +17,7 @@
 		"deploy": "gh-pages -d dist"
 	},
 	"dependencies": {
+		"desmos": "^1.5.4",
 		"vue": "^3.5.22",
 		"vue-mathjax-next": "^0.0.6"
 	},

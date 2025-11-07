@@ -182,10 +182,7 @@ const selector = {
 		*/
 
 		widgets.value.push(new WidgetData(x, y, width, height, new ExpressionData(latex))) // make it first so it can load and say loading...
-		widgets.value.at(-1).data.formula = await latex // update latex when its done
-
-		// expressions.value.push(new ExpressionData(latex, x, y, width, height)) // make it first so it can load and say loading...
-		// expressions.value.at(-1).formula = await latex // update latex when its done
+		widgets.value.at(-1).data.latex = await latex // update latex when its done
 
 		// debug stuff
 		if (DEBUG.downloadPNG) downloadCanvasPNG(croppedCanvas)

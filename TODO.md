@@ -1,13 +1,7 @@
 # PLAN
 
-### graph component
-
-- _10/24/25_ Fri - Add “graph” sbutton and Desmos API functionality
-- _10/25/25 Sat_ - keep working on Desmos API integration and graph component
-
-_also if we want to have expressions draggable onto graphs we need to keep track of the current expression in memory_
-
----
+next, I want to finish up graphs and figure out how exaclty I want them to look
+I also want to rework the toolbar to support a button to add a blank graph.
 
 ### solving component _hard!_
 
@@ -36,7 +30,15 @@ _priority from 0/10 + type_
 - 10 feature - editable expression component!
 - 9 feature - make the expression you drag to go on top
 - 8 polish - make a minimum resize and CLAMP THE DAMN POSITION (easy actually)
-- 6 polish - an info/credits button in the right
-- 4 polish - a little tutorial when you start
-- 4 polish - switch HMER select button to having a little AI star
-- 2 refactor the image shown to be a canvas, and then when we select we just draw a white square on the canvas, and then when the paths are updated, we just draw a new path, and then read from the canvas, so the paths is just a list of paths instead. maybe baybe! the issue with this is the path would still exist under the square so it might start looking a littttle strange. and undo and redo would delete random things
+- 4 polish - an info/credits button in the right
+- 2 polish - a little tutorial when you start
+- 2 polish - switch HMER select button to having a little AI star
+
+Graphs:
+
+- make it so that removing an equation turns it back into an expression or deletes it (user chooses)
+- easy - make it so that hovering while holding an expression gives a nice background
+
+---
+
+okay I just noticed an issue with expressions. we aren't updating the actual widgetdata when we do stuff, just the component itself, which means that if we want to be able to stringify and save these, it won't be possible. so we'll need to v-model everything!

@@ -9,10 +9,13 @@ const props = defineProps({
 	y: Number,
 	width: Number,
 	height: Number,
-	data: Object,
 	id: String,
+	data: Object,
 })
+const heldWidgetId = defineModel('heldWidgetId')
 const stopCanvasInputModel = defineModel('stopCanvasInput')
+const zIndex = ref(1)
+const zIndexCount = defineModel('zIndexCount')
 watch(stopCanvasInput, () => {
 	stopCanvasInputModel.value = stopCanvasInput.value
 })
@@ -30,19 +33,44 @@ const classes = computed(() => {
 	}
 })
 
-const elementStyles = computed(() => {
+const styles = computed(() => {
 	return {
 		left: x.value.toString() + 'px',
 		top: y.value.toString() + 'px',
 		width: width.value.toString() + 'px',
 		height: height.value.toString() + 'px',
+		zIndex: zIndex.value.toString(),
 	}
 })
 
+function toolbarClicked(event) {
+	dragStart(event)
+
+	heldWidgetId.value = props.id
+
+	zIndexCount.value++
+	zIndex.value = zIndexCount.value
+}
+
+function toolBarMove(event) {
+	if (!dragMove(event)) return
+	element.value.style.pointerEvents = 'none'
+}
+
+function toolbarReleased() {
+	dragEnd()
+
+	// check if user is over the toolbar
+	if (!element.value) return
+	element.value.style.pointerEvents = 'fill'
+
+	heldWidgetId.value = ''
+}
+
 // draggability stuff
 onMounted(() => {
-	document.addEventListener('mousemove', dragMove)
-	document.addEventListener('mouseup', dragEnd)
+	document.addEventListener('mousemove', toolBarMove)
+	document.addEventListener('mouseup', toolbarReleased)
 
 	document.addEventListener('mousemove', resizeMove)
 	document.addEventListener('mouseup', resizeEnd)
@@ -56,10 +84,10 @@ onUnmounted(() => {
 })
 </script>
 <template>
-	<div ref="element" class="template" :class="classes" :style="elementStyles">
+	<div ref="element" class="template" :class="classes" :style="styles">
 		<div
 			class="toolbar"
-			@mousedown="dragStart"
+			@mousedown="toolbarClicked"
 			:style="{ cursor: dragging ? 'grabbing' : 'grab' }"
 		>
 			<div class="title">{{ data.type }}</div>
@@ -156,5 +184,6 @@ onUnmounted(() => {
 	height: 1em;
 	cursor: se-resize;
 	fill: black;
+	z-index: 2;
 }
 </style>

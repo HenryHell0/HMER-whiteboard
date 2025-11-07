@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 export const stopCanvasInput = ref(false)
+export const heldExpression = ref('')
 
 export function useMouseDelta() {
 	// this also updates stopCanvasInput because thats all I'm usin it for
@@ -51,10 +52,12 @@ export function useDrag(baseX, baseY) {
 	}
 
 	function dragMove(event) {
-		if (!move(event)) return
+		if (!move(event)) return false
 
 		elementX.value = initialElementX + deltaX.value
 		elementY.value = initialElementY + deltaY.value
+
+		return true
 	}
 
 	function dragEnd() {
