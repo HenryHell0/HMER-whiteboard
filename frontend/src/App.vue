@@ -51,35 +51,6 @@ function SVGMouseUp(event) {
 
 	tools[sessionStore.activeTool].onUp?.(event)
 }
-
-// attempt at mobile support
-// function getTouchPosition(event) {
-//   const touch = event.touches[0] || event.changedTouches[0]
-//   return {
-//     x: touch.clientX,
-//     y: touch.clientY,
-//   }
-// }
-
-// function SVGTouchStart(event) {
-//   SVGTouchEnd(event)
-//   event.preventDefault()
-//   const pos = getTouchPosition(event)
-//   SVGMouseDown({ offsetX: pos.x, offsetY: pos.y, buttons: 1, clientX: pos.x, clientY: pos.y })
-// }
-
-// function SVGTouchMove(event) {
-//   event.preventDefault()
-//   const pos = getTouchPosition(event)
-//   SVGMouseMove({ offsetX: pos.x, offsetY: pos.y, buttons: 1, clientX: pos.x, clientY: pos.y })
-// }
-
-// function SVGTouchEnd(event) {
-//   console.log('touching u rn')
-//   event.preventDefault()
-//   const pos = getTouchPosition(event)
-//   SVGMouseUp({ offsetX: pos.x, offsetY: pos.y, buttons: 1, clientX: pos.x, clientY: pos.y })
-// }
 </script>
 
 <template>
@@ -117,7 +88,7 @@ function SVGMouseUp(event) {
 		<OverlaySvg :tools="tools"></OverlaySvg>
 
 		<div class="widget-container">
-			<Widget v-for="widget in widgetStore.widgets" :id="widget.id" :key="widget.id">
+			<Widget v-for="widget in widgetStore.widgets" :key="widget.id" :id="widget.id">
 				<component :is="widgetComponents[widget.type]" :data="widget.data"></component>
 			</Widget>
 		</div>

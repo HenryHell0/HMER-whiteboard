@@ -30,22 +30,22 @@ const classes = computed(() => {
 })
 const styles = computed(() => {
 	return {
-		left: widget.value.x.toString() + 'px',
-		top: widget.value.y.toString() + 'px',
-		width: widget.value.width.toString() + 'px',
-		height: widget.value.height.toString() + 'px',
-		zIndex: widget.value.zIndex.toString(),
+		left: widget.x.toString() + 'px',
+		top: widget.y.toString() + 'px',
+		width: widget.width.toString() + 'px',
+		height: widget.height.toString() + 'px',
+		zIndex: widget.zIndex.toString(),
 	}
 })
 
 function toolbarClicked(event) {
 	dragStart(event)
 
-	sessionStore.heldWidgetId = widget.value.id
+	sessionStore.heldWidgetId = widget.id
 	sessionStore.stopCanvasInput = true
 
 	widgetStore.zIndexCount++
-	widget.value.zIndex = widgetStore.zIndexCount
+	widget.zIndex = widgetStore.zIndexCount
 }
 function toolBarMove(event) {
 	if (!dragMove(event)) return
