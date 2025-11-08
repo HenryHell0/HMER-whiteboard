@@ -1,9 +1,14 @@
 # PLAN
 
+# wee woo wee woo first thing we wanna do is make it so that the wigets are getting an ID and mutating the widget object directly. take a look at how its done in widget.vue
+
+- also extract widget toolbar
+- also extract toolbar button and clean that up
+
 next, I want to finish up graphs and figure out how exaclty I want them to look
 I also want to rework the toolbar to support a button to add a blank graph.
 
-- MORE IMPORTANTLY FIX THE CURSOR AND THE HOVERING WITH THE POINTER EVENTS: NONE ON THE WIDGETS FOR THE GRAPH DRAGGING!!!!
+- !!!! MORE IMPORTANTLY FIX THE CURSOR AND THE HOVERING WITH THE POINTER EVENTS: NONE ON THE WIDGETS FOR THE GRAPH DRAGGING!!!!
 
 ### solving component _hard!_
 
@@ -40,7 +45,4 @@ Graphs:
 
 - make it so that removing an equation turns it back into an expression or deletes it (user chooses)
 - easy - make it so that hovering while holding an expression gives a nice background
-
----
-
-okay I just noticed an issue with expressions. we aren't updating the actual widgetdata when we do stuff, just the component itself, which means that if we want to be able to stringify and save these, it won't be possible. so we'll need to v-model everything!
+- make it so the padding color is the color of the graph!! (use desmos pallete option too, also make it so you can show/hide graphs!, and import/export)

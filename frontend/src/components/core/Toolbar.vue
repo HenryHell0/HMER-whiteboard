@@ -1,10 +1,15 @@
 <script setup>
+import { ref } from 'vue'
 import { useSessionStore } from '@/stores/useSessionStore'
+import { useDrawingOpacity } from '@/composables/useDrawingOpacity'
 import { toolList } from '@/utils/drawingTools'
 const sessionStore = useSessionStore()
+
+const element = ref(null)
+useDrawingOpacity(element)
 </script>
 <template>
-	<div class="toolbar">
+	<div ref="element" class="toolbar" @mouseenter="sessionStore.inputMode = 'idle'">
 		<button
 			v-for="tool in toolList"
 			:key="tool"
@@ -26,7 +31,7 @@ const sessionStore = useSessionStore()
 	justify-content: center;
 	gap: 10px;
 	padding: 10px 10px;
-	background-color: rgba(255, 255, 255, 0.8);
+	background-color: white;
 	border-radius: 1000000px;
 	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 	z-index: 100;

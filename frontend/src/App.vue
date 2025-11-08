@@ -10,38 +10,31 @@ import Toolbar from './components/core/Toolbar.vue'
 import Widget from './components/core/Widget.vue'
 import OverlaySvg from './components/overlay/OverlaySvg.vue'
 
-import { WidgetData, ExpressionData, GraphData, widgetComponents } from './utils/widgets'
+import { widgetComponents } from './utils/widgets'
 import { toolList, tools } from './utils/drawingTools'
 
-import DEBUG from './utils/debug'
+import { DEBUG, baseDebug } from './utils/debug'
 
 import { useWidgetStore } from './stores/useWidgetStore'
 import { useCanvasStore } from './stores/useCanvasStore'
 import { useSessionStore } from './stores/useSessionStore'
-
 const widgetStore = useWidgetStore()
 const canvasStore = useCanvasStore()
 const sessionStore = useSessionStore()
 
-if (DEBUG.createTestExpression) {
-	widgetStore.widgets.push(new WidgetData(100, 100, 515, 150, new ExpressionData('x^2+2x-1')))
-	// expressions.value.push(new ExpressionData('x^2+2x-1', 249, 326, 515, 150))
-}
-
-if (DEBUG.createTestGraph) {
-	widgetStore.widgets.push(
-		new WidgetData(410, 300, 714, 615, new GraphData(['x^2+2x-1', '\\sin(x)'])),
-	)
-}
+baseDebug()
 
 function SVGMouseDown(event) {
-	if (sessionStore.stopCanvasInput) return
+	if (sessionStore.inputMode != 'idle') return
+	sessionStore.inputMode = 'drawing'
+
 	tools[sessionStore.activeTool].onDown?.(event)
 }
 
 function SVGMouseMove(event) {
-	if (sessionStore.stopCanvasInput) return
+	if (sessionStore.inputMode != 'drawing') return
 	tools[sessionStore.activeTool].onMove?.(event)
+
 	sessionStore.previousMousePos.x = event.clientX
 	sessionStore.previousMousePos.y = event.clientY
 
@@ -53,7 +46,9 @@ function SVGMouseMove(event) {
 }
 
 function SVGMouseUp(event) {
-	if (sessionStore.stopCanvasInput) return
+	if (sessionStore.inputMode != 'drawing') return
+	sessionStore.inputMode = 'idle'
+
 	tools[sessionStore.activeTool].onUp?.(event)
 }
 
@@ -122,14 +117,7 @@ function SVGMouseUp(event) {
 		<OverlaySvg :tools="tools"></OverlaySvg>
 
 		<div class="widget-container">
-			<Widget
-				v-for="widget in widgetStore.widgets"
-				v-bind="widget"
-				:key="widget.id"
-				@deleteWidget="
-					(id) => (widgetStore.widgets = widgetStore.widgets.filter((e) => e.id != id))
-				"
-			>
+			<Widget v-for="widget in widgetStore.widgets" :id="widget.id" :key="widget.id">
 				<component :is="widgetComponents[widget.type]" :data="widget.data"></component>
 			</Widget>
 		</div>

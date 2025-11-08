@@ -1,8 +1,9 @@
 import { ref } from 'vue'
-export const stopCanvasInput = ref(false)
 export const heldExpression = ref('')
+import { useSessionStore } from '@/stores/useSessionStore'
 
 export function useMouseDelta() {
+	const sessionStore = useSessionStore()
 	// this also updates stopCanvasInput because thats all I'm usin it for
 	var startX = 0
 	var startY = 0
@@ -12,7 +13,7 @@ export function useMouseDelta() {
 
 	function start(event) {
 		moving.value = true
-		stopCanvasInput.value = true
+		sessionStore.inputMode = 'widget'
 
 		startX = event.clientX
 		startY = event.clientY
@@ -30,17 +31,15 @@ export function useMouseDelta() {
 	}
 	function end() {
 		moving.value = false
-		stopCanvasInput.value = false
+		sessionStore.inputMode = 'idle'
 	}
 
 	return { deltaX, deltaY, start, move, end, moving }
 }
 
-export function useDrag(baseX, baseY) {
-	const { start, move, end, deltaX, deltaY, moving: dragging } = useMouseDelta()
+export function useDrag(elementX, elementY) {
+	const { start, move, end, deltaX, deltaY, moving: isDragging } = useMouseDelta()
 
-	const elementX = ref(baseX)
-	const elementY = ref(baseY)
 	let initialElementX
 	let initialElementY
 
@@ -64,13 +63,11 @@ export function useDrag(baseX, baseY) {
 		end()
 	}
 
-	return { dragStart, dragMove, dragEnd, dragging, x: elementX, y: elementY }
+	return { dragStart, dragMove, dragEnd, isDragging }
 }
 
-export function useResize(baseWidth, baseHeight) {
-	const { start, move, end, deltaX, deltaY, moving: resizing } = useMouseDelta()
-	const elementWidth = ref(baseWidth)
-	const elementHeight = ref(baseHeight)
+export function useResize(elementWidth, elementHeight) {
+	const { start, move, end, deltaX, deltaY, moving: isResizing } = useMouseDelta()
 	let initialWidth
 	let initialHeight
 
@@ -95,8 +92,6 @@ export function useResize(baseWidth, baseHeight) {
 		resizeStart,
 		resizeMove,
 		resizeEnd,
-		width: elementWidth,
-		height: elementHeight,
-		resizing,
+		isResizing,
 	}
 }

@@ -1,65 +1,56 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, toRef, computed, onMounted, onUnmounted } from 'vue'
+
 import { useDrag, useResize } from '@/composables/useDraggables'
-import { stopCanvasInput } from '@/composables/useDraggables'
+import { useDrawingOpacity } from '@/composables/useDrawingOpacity'
+
 import { useWidgetStore } from '@/stores/useWidgetStore'
 import { useSessionStore } from '@/stores/useSessionStore'
+import { storeToRefs } from 'pinia'
 
 const widgetStore = useWidgetStore()
 const sessionStore = useSessionStore()
 
+const props = defineProps({ id: String })
+const widget = storeToRefs(widgetStore).widgets.value.find((e) => e.id === props.id)
 var element = ref(null)
-const props = defineProps({
-	x: Number,
-	y: Number,
-	width: Number,
-	height: Number,
-	id: String,
-	data: Object,
-})
-const zIndex = ref(2)
-//! fix
-watch(stopCanvasInput, () => {
-	sessionStore.stopCanvasInput = stopCanvasInput.value
-})
 
-const { dragStart, dragMove, dragEnd, dragging, x, y } = useDrag(props.x, props.y)
-const { resizeStart, resizeMove, resizeEnd, width, height, resizing } = useResize(
-	props.width,
-	props.height,
+useDrawingOpacity(element)
+const { dragStart, dragMove, dragEnd, isDragging } = useDrag(toRef(widget, 'x'), toRef(widget, 'y'))
+const { resizeStart, resizeMove, resizeEnd, isResizing } = useResize(
+	toRef(widget, 'width'),
+	toRef(widget, 'height'),
 )
 
 const classes = computed(() => {
 	return {
-		dragging: dragging.value,
-		resizing: resizing.value,
+		dragging: isDragging.value,
+		resizing: isResizing.value,
 	}
 })
-
 const styles = computed(() => {
 	return {
-		left: x.value.toString() + 'px',
-		top: y.value.toString() + 'px',
-		width: width.value.toString() + 'px',
-		height: height.value.toString() + 'px',
-		zIndex: zIndex.value.toString(),
+		left: widget.value.x.toString() + 'px',
+		top: widget.value.y.toString() + 'px',
+		width: widget.value.width.toString() + 'px',
+		height: widget.value.height.toString() + 'px',
+		zIndex: widget.value.zIndex.toString(),
 	}
 })
 
 function toolbarClicked(event) {
 	dragStart(event)
 
-	sessionStore.heldWidgetId = props.id
+	sessionStore.heldWidgetId = widget.value.id
+	sessionStore.stopCanvasInput = true
 
 	widgetStore.zIndexCount++
-	zIndex.value = widgetStore.zIndexCount
+	widget.value.zIndex = widgetStore.zIndexCount
 }
-
 function toolBarMove(event) {
 	if (!dragMove(event)) return
 	element.value.style.pointerEvents = 'none'
 }
-
 function toolbarReleased() {
 	dragEnd()
 
@@ -68,9 +59,9 @@ function toolbarReleased() {
 	element.value.style.pointerEvents = 'fill'
 
 	sessionStore.heldWidgetId = ''
+	sessionStore.stopCanvasInput = false
 }
 
-// draggability stuff
 onMounted(() => {
 	document.addEventListener('mousemove', toolBarMove)
 	document.addEventListener('mouseup', toolbarReleased)
@@ -91,13 +82,13 @@ onUnmounted(() => {
 		<div
 			class="toolbar"
 			@mousedown="toolbarClicked"
-			:style="{ cursor: dragging ? 'grabbing' : 'grab' }"
+			:style="{ cursor: isDragging ? 'grabbing' : 'grab' }"
 		>
-			<div class="title">{{ data.type }}</div>
+			<div class="title">{{ widget.type }}</div>
 			<div class="x-button-container">
 				<img
 					src="/assets/x.svg"
-					@click="$emit('deleteWidget', id)"
+					@click="widgetStore.widgets = widgetStore.widgets.filter((e) => e.id != id)"
 					class="x-button"
 					draggable="false"
 				/>

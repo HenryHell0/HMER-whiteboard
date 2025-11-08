@@ -5,8 +5,13 @@ export const useSessionStore = defineStore('session', () => {
 	const currentStroke = ref([])
 	const previousMousePos = { x: -1, y: -1 }
 	const activeTool = ref('pen')
-	const stopCanvasInput = ref(false)
 	const heldWidgetId = ref('')
 
-	return { currentStroke, previousMousePos, activeTool, stopCanvasInput, heldWidgetId }
+	const inputMode = ref('idle')
+	// possible values:
+	// 'idle' — no special input mode
+	// 'drawing' — writing/drawing on canvas
+	// 'widget' — moving a widget/on a widget sommehow
+
+	return { currentStroke, previousMousePos, activeTool, inputMode, heldWidgetId }
 })

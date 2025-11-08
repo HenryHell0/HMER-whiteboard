@@ -5,13 +5,7 @@ import { erasePathsInRect } from './svgCanvasTools'
 import { useWidgetStore } from '@/stores/useWidgetStore'
 import { useCanvasStore } from '@/stores/useCanvasStore'
 import { useSessionStore } from '@/stores/useSessionStore'
-
-const DEBUG = {
-	logMouseMovements: false,
-	downloadPNG: false,
-	logLatex: true,
-	createTestExpression: true,
-}
+import { DEBUG } from './debug'
 
 const pen = {
 	onDown(event) {

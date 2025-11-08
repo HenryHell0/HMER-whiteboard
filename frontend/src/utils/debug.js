@@ -1,4 +1,24 @@
-export default {
+import { WidgetData, ExpressionData, GraphData } from './widgets'
+import { useWidgetStore } from '@/stores/useWidgetStore'
+
+export const DEBUG = {
 	createTestExpression: true,
 	createTestGraph: true,
+	logMouseMovements: false,
+	downloadPNG: false,
+	logLatex: true,
+}
+
+export function baseDebug() {
+	const widgetStore = useWidgetStore()
+
+	if (DEBUG.createTestExpression) {
+		widgetStore.widgets.push(new WidgetData(100, 100, 515, 150, new ExpressionData('x^2+2x-1')))
+	}
+
+	if (DEBUG.createTestGraph) {
+		widgetStore.widgets.push(
+			new WidgetData(410, 300, 714, 615, new GraphData(['x^2+2x-1', '\\sin(x)'])),
+		)
+	}
 }

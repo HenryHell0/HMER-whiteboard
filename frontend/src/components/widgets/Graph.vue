@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useWidgetStore } from '@/stores/useWidgetStore'
 import { useSessionStore } from '@/stores/useSessionStore'
 import Desmos from 'desmos'
+//!!!!!!!!!!!!!!!!!!!!!!!!!!! refactor to use ID and whatchamacallit
 
 const widgetStore = useWidgetStore()
 const sessionStore = useSessionStore()

@@ -15,6 +15,7 @@ export class WidgetData {
 		this.id = crypto.randomUUID()
 		this.data = data
 		this.type = this.data.type
+		this.zIndex = 1
 	}
 }
 
@@ -33,6 +34,5 @@ export class GraphData {
 		for (const [i, latex] of latexExpressions.entries()) {
 			this.graphs[i] = { latex, color: '#000000', id: crypto.randomUUID() }
 		}
-		// TODO add viewbox, etc
 	}
 }
