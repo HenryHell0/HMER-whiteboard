@@ -55,9 +55,9 @@ const pen = {
 }
 const eraser = {
 	onMove(event) {
+		if (event.buttons !== 1) return
 		const sessionStore = useSessionStore()
 		const canvasStore = useCanvasStore()
-		if (event.buttons !== 1) return
 
 		const startPos = sessionStore.previousMousePos
 		const endPos = { x: event.clientX, y: event.clientY }
@@ -68,8 +68,8 @@ const eraser = {
 		const steps = Math.max(1, Math.ceil(distance))
 
 		for (let i = 0; i <= steps; i++) {
-			const x = startPos.x + (dx * i) / steps
-			const y = startPos.y + (dy * i) / steps
+			const x = startPos.x + (dx / steps) * i
+			const y = startPos.y + (dy / steps) * i
 
 			const elements = document.elementsFromPoint(x, y)
 

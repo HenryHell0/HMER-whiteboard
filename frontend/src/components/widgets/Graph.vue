@@ -1,15 +1,15 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useWidgetStore } from '@/stores/useWidgetStore'
 import { useSessionStore } from '@/stores/useSessionStore'
 import Desmos from 'desmos'
-//!!!!!!!!!!!!!!!!!!!!!!!!!!! refactor to use ID and whatchamacallit
 
 const widgetStore = useWidgetStore()
 const sessionStore = useSessionStore()
 
-const props = defineProps(['data']) //* will be defineModel later casue we will be removing some of them
-const data = props.data //! not reactive
+const props = defineProps({ id: String })
+const data = storeToRefs(widgetStore).widgets.value.find((e) => e.id === props.id).data
 let graphs = ref(data.graphs)
 const graphElement = ref(null)
 var calculator

@@ -9,7 +9,7 @@ export const DEBUG = {
 	logLatex: true,
 }
 
-export function baseDebug() {
+export function addTestWidgets() {
 	const widgetStore = useWidgetStore()
 
 	if (DEBUG.createTestExpression) {

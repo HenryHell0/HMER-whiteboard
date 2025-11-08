@@ -7,6 +7,7 @@ import { useDrawingOpacity } from '@/composables/useDrawingOpacity'
 import { useWidgetStore } from '@/stores/useWidgetStore'
 import { useSessionStore } from '@/stores/useSessionStore'
 import { storeToRefs } from 'pinia'
+import WidgetToolbar from './WidgetToolbar.vue'
 
 const widgetStore = useWidgetStore()
 const sessionStore = useSessionStore()
@@ -79,22 +80,7 @@ onUnmounted(() => {
 </script>
 <template>
 	<div ref="element" class="template" :class="classes" :style="styles">
-		<div
-			class="toolbar"
-			@mousedown="toolbarClicked"
-			:style="{ cursor: isDragging ? 'grabbing' : 'grab' }"
-		>
-			<div class="title">{{ widget.type }}</div>
-			<div class="x-button-container">
-				<img
-					src="/assets/x.svg"
-					@click="widgetStore.widgets = widgetStore.widgets.filter((e) => e.id != id)"
-					class="x-button"
-					draggable="false"
-				/>
-			</div>
-		</div>
-
+		<WidgetToolbar @toolbarClicked="toolbarClicked" :isDragging :widget></WidgetToolbar>
 		<slot></slot>
 
 		<img
@@ -130,44 +116,6 @@ onUnmounted(() => {
 
 .resizing {
 	opacity: 80%;
-}
-
-.toolbar {
-	border-top-left-radius: inherit;
-	border-top-right-radius: inherit;
-	background-color: rgb(240, 240, 240);
-	flex-shrink: 0;
-
-	display: flex;
-	flex-direction: row;
-
-	cursor: grab;
-}
-
-.title {
-	color: rgb(29, 29, 29);
-	font-size: 80%;
-	padding: 0.5em;
-	flex-grow: 2;
-}
-
-.x-button-container {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.x-button {
-	height: 100%;
-	box-sizing: border-box;
-	padding: 0.1em;
-	border-radius: 100px;
-	transition: background 0.3s ease;
-	cursor: pointer;
-}
-
-.x-button:hover {
-	background-color: darkgray;
 }
 
 .resizer {

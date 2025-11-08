@@ -12,7 +12,7 @@ export default defineConfig([
 			'vue/multi-word-component-names': [
 				'error',
 				{
-					ignores: ['Widget', 'Toolbar', 'Expression', 'Graph'],
+					ignores: ['Widget', 'Toolbar', 'Expression', 'Graph', 'Widgets'],
 				},
 			],
 		},

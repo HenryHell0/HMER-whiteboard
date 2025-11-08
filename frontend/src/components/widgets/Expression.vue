@@ -1,6 +1,11 @@
 <script setup>
 import { toRef } from 'vue'
-const { data } = defineProps(['data'])
+import { useWidgetStore } from '@/stores/useWidgetStore'
+import { storeToRefs } from 'pinia'
+const props = defineProps({ id: String })
+const widgetStore = useWidgetStore()
+const data = storeToRefs(widgetStore).widgets.value.find((e) => e.id === props.id).data
+
 const latex = toRef(() => data.latex)
 </script>
 <template>
