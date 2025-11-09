@@ -11,12 +11,7 @@ const { isDragging, widget } = defineProps(['isDragging', 'widget'])
 	>
 		<div class="title">{{ widget.type }}</div>
 		<div class="x-button-container">
-			<img
-				src="/assets/x.svg"
-				@click="widgetStore.widgets = widgetStore.widgets.filter((e) => e.id != widget.id)"
-				class="x-button"
-				draggable="false"
-			/>
+			<img src="/assets/x.svg" @click="widgetStore.deleteWidget(widget.id)" class="x-button" draggable="false" />
 		</div>
 	</div>
 </template>

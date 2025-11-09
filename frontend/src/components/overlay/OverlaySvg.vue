@@ -1,15 +1,16 @@
 <script setup>
-const { tools } = defineProps(['tools'])
+import { tools } from '@/utils/drawingTools'
+const selector = tools['selector']
 </script>
 <template>
 	<svg class="overlaySVG">
 		<rect
-			v-if="tools['selector'].isActive.value"
 			class="selection-rect"
-			:x="Math.min(tools['selector'].startX.value, tools['selector'].endX.value)"
-			:y="Math.min(tools['selector'].startY.value, tools['selector'].endY.value)"
-			:width="Math.abs(tools['selector'].endX.value - tools['selector'].startX.value)"
-			:height="Math.abs(tools['selector'].endY.value - tools['selector'].startY.value)"
+			v-if="selector.isActive"
+			:x="selector.x"
+			:y="selector.y"
+			:width="selector.width"
+			:height="selector.height"
 		/>
 	</svg>
 </template>

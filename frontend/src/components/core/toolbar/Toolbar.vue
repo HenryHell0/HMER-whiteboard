@@ -1,15 +1,19 @@
 <script setup>
+//TODO add more stuff to this directory with the buttons, setction etc. See chat's idea
 import { ref } from 'vue'
 import { useSessionStore } from '@/stores/useSessionStore'
 import { useDrawingOpacity } from '@/composables/useDrawingOpacity'
 import { toolList } from '@/utils/drawingTools'
 const sessionStore = useSessionStore()
 
+// make elemnt transparent when drawing over it
 const element = ref(null)
 useDrawingOpacity(element)
 </script>
 <template>
 	<div ref="element" class="toolbar" @mouseenter="sessionStore.inputMode = 'idle'">
+		<!-- todo split into sections and improve scalability for undo, redo, etc. -->
+		<!-- drawing tool buttons -->
 		<button
 			v-for="tool in toolList"
 			:key="tool"

@@ -1,4 +1,4 @@
-import { WidgetData, ExpressionData, GraphData } from './widgets'
+import { WidgetData, ExpressionData, GraphData } from './widgetData'
 import { useWidgetStore } from '@/stores/useWidgetStore'
 
 export const DEBUG = {

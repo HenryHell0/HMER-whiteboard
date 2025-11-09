@@ -103,26 +103,14 @@ export function erasePathsInRect(x, y, width, height) {
 		const boxBottom = bbox.y + bbox.height
 
 		// fully inside
-		const fullyInside =
-			boxLeft >= rectLeft &&
-			boxRight <= rectRight &&
-			boxTop >= rectTop &&
-			boxBottom <= rectBottom
+		const fullyInside = boxLeft >= rectLeft && boxRight <= rectRight && boxTop >= rectTop && boxBottom <= rectBottom
 
 		// partial overlap
-		const intersects = !(
-			boxRight < rectLeft ||
-			boxLeft > rectRight ||
-			boxBottom < rectTop ||
-			boxTop > rectBottom
-		)
+		const intersects = !(boxRight < rectLeft || boxLeft > rectRight || boxBottom < rectTop || boxTop > rectBottom)
 
 		// selection fully inside path bbox (path contains selection)
 		const containsSelection =
-			rectLeft >= boxLeft &&
-			rectRight <= boxRight &&
-			rectTop >= boxTop &&
-			rectBottom <= boxBottom
+			rectLeft >= boxLeft && rectRight <= boxRight && rectTop >= boxTop && rectBottom <= boxBottom
 
 		// erase if fully inside or intersecting, but not if it contains selection
 		const shouldErase = (fullyInside || intersects) && !containsSelection

@@ -40,22 +40,4 @@ const latex = toRef(() => data.latex)
 	font-size: clamp(1em, 400vh, 400%);
 	transform: translateY(-10px);
 }
-
-/* ? bruh idk */
-/* Scale math text relative to widget */
-/* .expression :deep(mjx-container) {
-	display: flex !important;
-	justify-content: center;
-	align-items: center;
-	width: 100%;
-	height: 100%;
-	font-size: max(100vh, 100vw);
-	transform: scale(1.2);
- }*/
-
-/* Optional: tweak inline <mjx-math> layout
-.expression :deep(mjx-math) {
-	width: auto !important;
-	height: auto !important;
-}*/
 </style>

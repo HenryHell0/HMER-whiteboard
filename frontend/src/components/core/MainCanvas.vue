@@ -58,13 +58,7 @@ function SVGMouseUp(event) {
 
 		<path
 			v-if="sessionStore.currentStroke.length > 1"
-			:d="
-				`M ${sessionStore.currentStroke[0].x},${sessionStore.currentStroke[0].y} ` +
-				sessionStore.currentStroke
-					.slice(1)
-					.map((p) => `L ${p.x},${p.y}`)
-					.join(' ')
-			"
+			:d="sessionStore.currentPath"
 			class="stroke"
 		/>
 	</svg>

@@ -1,7 +1,7 @@
-import { ref } from 'vue'
-import { cropCanvas, downloadCanvasPNG, svgToCanvas, recognizeCanvas } from './svgCanvasTools'
-import { WidgetData, ExpressionData } from '@/utils/widgets'
-import { erasePathsInRect } from './svgCanvasTools'
+import { reactive } from 'vue'
+import { cropCanvas, downloadCanvasPNG, svgToCanvas, recognizeCanvas } from './svgCanvasUtils'
+import { WidgetData, ExpressionData } from '@/utils/widgetData'
+import { erasePathsInRect } from './svgCanvasUtils'
 import { useWidgetStore } from '@/stores/useWidgetStore'
 import { useCanvasStore } from '@/stores/useCanvasStore'
 import { useSessionStore } from '@/stores/useSessionStore'
@@ -84,67 +84,73 @@ const eraser = {
 		}
 	},
 }
-const selector = {
+const selector = reactive({
 	//? consider adding a confirmation/additional editing of selection (a lot of work for a small feature)
 
-	startX: ref(-1),
-	startY: ref(-1),
-	endX: ref(-1),
-	endY: ref(-1),
-	isActive: ref(false),
+	startX: -1,
+	startY: -1,
+	endX: -1,
+	endY: -1,
+	isActive: false,
+
+	get x() {
+		return Math.min(this.startX, this.endX)
+	},
+	get y() {
+		return Math.min(this.startY, this.endY)
+	},
+	get width() {
+		return Math.abs(this.endX - this.startX)
+	},
+
+	get height() {
+		return Math.abs(this.endY - this.startY)
+	},
 
 	onDown(event) {
-		this.startX.value = event.clientX
-		this.startY.value = event.clientY
-		this.endX.value = event.clientX
-		this.endY.value = event.clientY
-		this.isActive.value = true
+		this.startY = event.clientY
+		this.startX = event.clientX
+		this.endX = event.clientX
+		this.endY = event.clientY
+		this.isActive = true
 	},
 	onMove(event) {
-		if (!this.isActive.value) return
-		this.endX.value = event.clientX
-		this.endY.value = event.clientY
+		if (!this.isActive) return
+		this.endX = event.clientX
+		this.endY = event.clientY
 	},
-	async onUp(event) {
+	async onUp() {
 		const widgetStore = useWidgetStore()
 		const sessionStore = useSessionStore()
+
+		// reset
+		this.isActive = false
 
 		// convert svg to png!!
 		const fullCanvas = await svgToCanvas('inputSVG')
 
 		// crop canvas
 		const croppedCanvas = document.createElement('canvas')
-		const x = Math.min(this.startX.value, this.endX.value)
-		const y = Math.min(this.startY.value, this.endY.value)
-		const width = Math.abs(this.endX.value - this.startX.value)
-		const height = Math.abs(this.endY.value - this.startY.value)
-		cropCanvas(croppedCanvas, fullCanvas, x, y, width, height)
-
-		// reset
-		this.endX.value = event.clientX
-		this.endY.value = event.clientY
-		this.isActive.value = false
+		cropCanvas(croppedCanvas, fullCanvas, this.x, this.y, this.width, this.height)
 
 		// erase strokes and switch to pen
-		erasePathsInRect(x, y, width, height)
-
+		erasePathsInRect(this.x, this.y, this.width, this.height)
 		sessionStore.activeTool = 'pen'
 
 		// recognize expression
 		const latex = recognizeCanvas(croppedCanvas)
 
-		/* TODO
-		- create expression component with "loading"
-		- add latex to expression component
-		*/
-		widgetStore.widgets.push(new WidgetData(x, y, width, height, new ExpressionData(latex))) // make it first so it can load and say loading...
+		// add expression widget
+		widgetStore.widgets.push(new WidgetData(this.x, this.y, this.width, this.height, new ExpressionData(latex))) // make it first so it can load and say loading...
 		widgetStore.widgets.at(-1).data.latex = await latex // update latex when its done
+
+		// reset
 
 		// debug stuff
 		if (DEBUG.downloadPNG) downloadCanvasPNG(croppedCanvas)
 		if (DEBUG.logLatex) console.log(await latex)
 	},
-}
+})
 
 export const toolList = ['pen', 'eraser', 'selector']
 export const tools = {

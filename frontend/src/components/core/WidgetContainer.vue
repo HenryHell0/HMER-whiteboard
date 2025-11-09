@@ -1,12 +1,12 @@
 <script setup>
-import Widget from '@/components/core/widget/Widget.vue'
+import Widget from '@/components/core/widgetTemplate/Widget.vue'
 import { useWidgetStore } from '@/stores/useWidgetStore'
-import { widgetComponents } from '@/utils/widgets'
+import { widgetComponents } from '@/utils/widgetData'
 import { addTestWidgets } from '@/utils/debug'
 
-addTestWidgets()
-
 const widgetStore = useWidgetStore()
+
+addTestWidgets()
 </script>
 <template>
 	<div class="widget-container">

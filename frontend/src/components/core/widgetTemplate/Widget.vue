@@ -6,22 +6,19 @@ import { useDrawingOpacity } from '@/composables/useDrawingOpacity'
 
 import { useWidgetStore } from '@/stores/useWidgetStore'
 import { useSessionStore } from '@/stores/useSessionStore'
-import { storeToRefs } from 'pinia'
 import WidgetToolbar from './WidgetToolbar.vue'
 
 const widgetStore = useWidgetStore()
 const sessionStore = useSessionStore()
 
 const props = defineProps({ id: String })
-const widget = storeToRefs(widgetStore).widgets.value.find((e) => e.id === props.id)
-var element = ref(null)
+const widget = widgetStore.getWidgetById(props.id)
 
+var element = ref(null)
 useDrawingOpacity(element)
+
 const { dragStart, dragMove, dragEnd, isDragging } = useDrag(toRef(widget, 'x'), toRef(widget, 'y'))
-const { resizeStart, resizeMove, resizeEnd, isResizing } = useResize(
-	toRef(widget, 'width'),
-	toRef(widget, 'height'),
-)
+const { resizeStart, resizeMove, resizeEnd, isResizing } = useResize(toRef(widget, 'width'), toRef(widget, 'height'))
 
 const classes = computed(() => {
 	return {
@@ -43,8 +40,8 @@ function toolbarClicked(event) {
 	dragStart(event)
 
 	sessionStore.heldWidgetId = widget.id
-	sessionStore.stopCanvasInput = true
 
+	// update zindex
 	widgetStore.zIndexCount++
 	widget.zIndex = widgetStore.zIndexCount
 }
@@ -59,8 +56,8 @@ function toolbarReleased() {
 	if (!element.value) return
 	element.value.style.pointerEvents = 'fill'
 
+	// reset widget ID and reset mode
 	sessionStore.heldWidgetId = ''
-	sessionStore.stopCanvasInput = false
 }
 
 onMounted(() => {
@@ -81,14 +78,10 @@ onUnmounted(() => {
 <template>
 	<div ref="element" class="template" :class="classes" :style="styles">
 		<WidgetToolbar @toolbarClicked="toolbarClicked" :isDragging :widget></WidgetToolbar>
+
 		<slot></slot>
 
-		<img
-			class="resizer"
-			@mousedown="resizeStart"
-			:src="'./assets/resize.svg'"
-			draggable="false"
-		/>
+		<img class="resizer" @mousedown="resizeStart" :src="'./assets/resize.svg'" draggable="false" />
 	</div>
 </template>
 <style scoped>

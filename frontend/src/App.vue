@@ -1,19 +1,17 @@
 <script setup>
-import Toolbar from './components/core/Toolbar.vue'
+import Toolbar from './components/core/toolbar/Toolbar.vue'
 import WidgetContainer from './components/core/WidgetContainer.vue'
 import OverlaySvg from './components/overlay/OverlaySvg.vue'
 import MainCanvas from './components/core/MainCanvas.vue'
-
-import { toolList, tools } from './utils/drawingTools'
 </script>
 
 <template>
 	<div class="template">
-		<Toolbar :toolList> </Toolbar>
+		<Toolbar> </Toolbar>
 
 		<MainCanvas></MainCanvas>
 
-		<OverlaySvg :tools="tools"></OverlaySvg>
+		<OverlaySvg></OverlaySvg>
 
 		<WidgetContainer></WidgetContainer>
 	</div>
