@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 import { cropCanvas, downloadCanvasPNG, svgToCanvas, recognizeCanvas } from './svgCanvasUtils'
-import { WidgetData, ExpressionData } from '@/utils/widgetData'
+import { ExpressionData } from '@/utils/widgetData'
 import { erasePathsInRect } from './svgCanvasUtils'
 import { useWidgetStore } from '@/stores/useWidgetStore'
 import { useCanvasStore } from '@/stores/useCanvasStore'
@@ -141,8 +141,8 @@ const selector = reactive({
 		const latex = recognizeCanvas(croppedCanvas)
 
 		// add expression widget
-		widgetStore.widgets.push(new WidgetData(this.x, this.y, this.width, this.height, new ExpressionData(latex))) // make it first so it can load and say loading...
-		widgetStore.widgets.at(-1).data.latex = await latex // update latex when its done
+		widgetStore.addWidget(new ExpressionData(this.x, this.y, this.width, this.height, latex))
+		widgetStore.widgets.at(-1).latex = await latex // update latex when its done
 
 		// reset
 

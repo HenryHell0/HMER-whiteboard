@@ -1,7 +1,7 @@
 <script setup>
 import Toolbar from './components/core/toolbar/Toolbar.vue'
 import WidgetContainer from './components/core/WidgetContainer.vue'
-import OverlaySvg from './components/overlay/OverlaySvg.vue'
+import OverlaySvg from './components/core/overlay/OverlaySvg.vue'
 import MainCanvas from './components/core/MainCanvas.vue'
 </script>
 

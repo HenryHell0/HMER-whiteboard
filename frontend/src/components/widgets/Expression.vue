@@ -4,9 +4,9 @@ import { useWidgetStore } from '@/stores/useWidgetStore'
 import { storeToRefs } from 'pinia'
 const props = defineProps({ id: String })
 const widgetStore = useWidgetStore()
-const data = storeToRefs(widgetStore).widgets.value.find((e) => e.id === props.id).data
+const widget = storeToRefs(widgetStore).widgets.value.find((e) => e.id === props.id)
 
-const latex = toRef(() => data.latex)
+const latex = toRef(() => widget.latex)
 </script>
 <template>
 	<div class="content">

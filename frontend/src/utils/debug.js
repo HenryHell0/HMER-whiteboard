@@ -1,4 +1,4 @@
-import { WidgetData, ExpressionData, GraphData } from './widgetData'
+import { ExpressionData, GraphData } from './widgetData'
 import { useWidgetStore } from '@/stores/useWidgetStore'
 
 export const DEBUG = {
@@ -13,12 +13,10 @@ export function addTestWidgets() {
 	const widgetStore = useWidgetStore()
 
 	if (DEBUG.createTestExpression) {
-		widgetStore.widgets.push(new WidgetData(100, 100, 515, 150, new ExpressionData('x^2+2x-1')))
+		widgetStore.addWidget(new ExpressionData(100, 100, 515, 150, 'x^2+2x-1'))
 	}
 
 	if (DEBUG.createTestGraph) {
-		widgetStore.widgets.push(
-			new WidgetData(410, 300, 714, 615, new GraphData(['x^2+2x-1', '\\sin(x)'])),
-		)
+		widgetStore.widgets.push(new GraphData(410, 300, 714, 615, ['x^2+2x-1', '\\sin(x)']))
 	}
 }
