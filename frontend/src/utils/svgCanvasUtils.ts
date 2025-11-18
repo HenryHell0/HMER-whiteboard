@@ -1,27 +1,29 @@
-import { useCanvasStore } from '@/stores/useCanvasStore'
+import type { Path } from "typescript"
+import { useCanvasStore } from "../stores/useCanvasStore.js"
 
-function serializeSVG(svgElement) {
-	// try to fix to get this stuff working lololol
-	for (let path of svgElement.children) {
-		path.style.stroke = getComputedStyle(path).stroke
-		path.style.fill = getComputedStyle(path).fill
-		path.style.strokeWidth = getComputedStyle(path).strokeWidth
+export function serializeSVG(svgElement: SVGSVGElement): string {
+
+	for (const element of Array.from(svgElement.children)) {
+		if (element instanceof SVGElement) {
+			const style = getComputedStyle(element)
+			element.style.stroke = style.stroke
+			element.style.fill = style.fill
+			element.style.strokeWidth = style.strokeWidth
+		}
 	}
 
-	const serializer = new XMLSerializer()
-	return serializer.serializeToString(svgElement)
+	return new XMLSerializer().serializeToString(svgElement)
 }
-
-export function cropCanvas(finalCanvas, originalCanvas, x, y, w, h) {
+export function cropCanvas(finalCanvas: HTMLCanvasElement, originalCanvas: HTMLCanvasElement, x: number, y: number, w: number, h:number) {
 	finalCanvas.width = w
 	finalCanvas.height = h
 	const finalCtx = finalCanvas.getContext('2d')
 
-	finalCtx.drawImage(originalCanvas, x, y, w, h, 0, 0, w, h)
+	finalCtx!.drawImage(originalCanvas, x, y, w, h, 0, 0, w, h)
 }
 
-export function downloadCanvasPNG(canvas) {
-	const URL = canvas.toDataURL()
+export function downloadCanvasPNG(canvas: HTMLCanvasElement) {
+	const URL: string = canvas.toDataURL()
 	const downloadLinkElement = document.createElement('a')
 	downloadLinkElement.href = URL
 	downloadLinkElement.download = 'canvas-screenshot.png'
@@ -30,20 +32,26 @@ export function downloadCanvasPNG(canvas) {
 	document.body.removeChild(downloadLinkElement)
 }
 
-export async function svgToCanvas(id) {
+export async function svgToCanvas(id: string): Promise<HTMLCanvasElement>{
 	return new Promise((resolve, reject) => {
 		const svgElement = document.getElementById(id)
-		// ! fix styles
-		// TODO fix styles
+
+		if (!(svgElement instanceof SVGSVGElement)) throw new Error("element is not svgsvgElement")
+
+		// serialize
 		const svgString = serializeSVG(svgElement)
 		const svgRect = svgElement.getBoundingClientRect()
 
+		// prepare canvas
 		const canvas = document.createElement('canvas')
 		const ctx = canvas.getContext('2d')
+		if (!ctx) throw new Error("ctx undefined")
 
+		// create blob
 		const blob = new Blob([svgString], { type: 'image/svg+xml' })
 		const blobUrl = URL.createObjectURL(blob)
 
+		// load image
 		const img = new Image()
 		img.src = blobUrl
 		img.width = svgRect.width
@@ -63,13 +71,20 @@ export async function svgToCanvas(id) {
 	})
 }
 
-async function canvasToBlob(canvas) {
-	return new Promise((resolve) => {
-		canvas.toBlob(resolve, 'image/png')
+function canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob> {
+	return new Promise((resolve, reject) => {
+		canvas.toBlob((blob) => {
+			if (!blob) {
+				reject(new Error("Canvas toBlob() returned null"))
+				return
+			}
+			resolve(blob)
+		}, 'image/png')
 	})
 }
 
-export async function recognizeCanvas(canvas) {
+
+export async function recognizeCanvas(canvas: HTMLCanvasElement): Promise<string> {
 	const blob = await canvasToBlob(canvas)
 	const formData = new FormData()
 	formData.append('img', blob, 'image.png')
@@ -83,7 +98,7 @@ export async function recognizeCanvas(canvas) {
 	return latex
 }
 
-export function erasePathsInRect(x, y, width, height) {
+export function erasePathsInRect(x: number, y: number, width: number, height: number) {
 	const canvasStore = useCanvasStore()
 	// this function also deletes something if you intersect the edge of a bbox, so it can erase things even if you aren't over it completely - especially if it is a diagonal.
 
@@ -95,6 +110,7 @@ export function erasePathsInRect(x, y, width, height) {
 	canvasStore.paths = canvasStore.paths.filter((path) => {
 		const element = document.querySelector(`[data-id="${path.id}"]`)
 		if (!element) return true
+		if (!(element instanceof SVGPathElement)) return true
 
 		const bbox = element.getBBox()
 		const boxLeft = bbox.x

@@ -1,14 +1,14 @@
-import Expression from '@/components/widgets/Expression.vue'
-import Graph from '@/components/widgets/graph/Graph.vue'
-import { useWidgetStore } from '@/stores/useWidgetStore'
+import { useWidgetStore } from "../stores/useWidgetStore.js"
 
-export const widgetComponents = {
-	Expression: Expression,
-	Graph: Graph,
-}
+abstract class WidgetData {
+	x: number
+	y: number
+	width: number
+	height: number
+	id: string
+	zIndex: number
 
-export class WidgetData {
-	constructor(x, y, width, height) {
+	constructor(x: number, y: number, width: number, height: number) {
 		this.x = x
 		this.y = y
 		this.width = width
@@ -18,8 +18,18 @@ export class WidgetData {
 	}
 }
 
+interface ItoolbarButton {
+	name: string
+	icon: string
+	onClick: Function
+}
+
 export class ExpressionData extends WidgetData {
-	constructor(x, y, width, height, latex) {
+	type: string
+	latex: string
+	toolbarButtons: ItoolbarButton[]
+
+	constructor(x: number, y: number, width: number, height: number, latex: string) {
 		super(x, y, width, height)
 		this.type = 'Expression'
 		this.latex = latex
@@ -31,9 +41,7 @@ export class ExpressionData extends WidgetData {
 				icon: 'graph',
 				onClick: function () {
 					const widgetStore = useWidgetStore()
-					widgetStore.addWidget(
-						new GraphData(self.x, self.y, self.width, self.width, [self]),
-					) // self.width twice is intentional
+					widgetStore.addWidget(new GraphData(self.x, self.y, self.width, self.width, [self])) // self.width twice is intentional
 					widgetStore.deleteWidget(self.id)
 				},
 			},
@@ -42,29 +50,30 @@ export class ExpressionData extends WidgetData {
 }
 
 export class GraphData extends WidgetData {
-	constructor(x, y, width, height, expressions) {
+	expressions: ExpressionData[]
+	type: string;
+	calculator: any
+	constructor(x: number, y: number, width: number, height: number, expressions: ExpressionData[]) {
 		super(x, y, width, height)
 		this.type = 'Graph'
-		this.expressions = []
-		this.calculator
+		this.expressions = [...expressions]
 
-		for (const expression of expressions) {
-			this.expressions.push(expression)
-		}
 	}
-	addExpression(expression) {
+	addExpression(expression: ExpressionData) {
 		this.expressions.push(expression)
 		const graph = { latex: expression.latex, color: '#000000', id: expression.id }
 		this.calculator.setExpression({ latex: graph.latex, color: graph.color, id: graph.id })
 	}
-	deleteExpression(expression) {
+	deleteExpression(expression: ExpressionData) {
 		const widgetStore = useWidgetStore()
 
 		this.expressions = this.expressions.filter((e) => e.id != expression.id)
 		this.calculator.removeExpression({ id: expression.id })
 
-		if (this.expressions.length  == 0 ) {
+		if (this.expressions.length == 0) {
 			widgetStore.deleteWidget(this.id)
 		}
 	}
 }
+
+export type Widget = ExpressionData | GraphData
