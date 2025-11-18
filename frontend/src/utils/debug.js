@@ -17,6 +17,11 @@ export function addTestWidgets() {
 	}
 
 	if (DEBUG.createTestGraph) {
-		widgetStore.widgets.push(new GraphData(410, 300, 714, 615, ['x^2+2x-1', '\\sin(x)']))
+		widgetStore.widgets.push(
+			new GraphData(410, 300, 714, 615, [
+				new ExpressionData(410, 300, 410, 300, 'x^2+2x-1'),
+				new ExpressionData(410, 300, 410, 300, '\\sin(x)'),
+			]),
+		)
 	}
 }

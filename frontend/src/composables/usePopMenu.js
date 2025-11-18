@@ -1,10 +1,10 @@
 // /src/composables/usePopMenu.js
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 
-export function usePopMenu() {
+export function usePopMenu(closeMenuOnClick=false) {
 	const isOpen = ref(false)
-	const activatorRef = ref(null)
-	const menuRef = ref(null)
+	const activatorElement = ref(null)
+	const menuElement = ref(null)
 
 	const position = ref({ top: 0, left: 0 })
 
@@ -17,12 +17,16 @@ export function usePopMenu() {
 		isOpen.value = false
 	}
 
-	function onClickOutside(e) {
+	function menuClicked() {
+		if (closeMenuOnClick) close()
+	}
+
+	function onClickOutside(event) {
 		if (
-			activatorRef.value &&
-			!activatorRef.value.contains(e.target) &&
-			menuRef.value &&
-			!menuRef.value.contains(e.target)
+			activatorElement.value &&
+			!activatorElement.value.contains(event.target) &&
+			menuElement.value &&
+			!menuElement.value.contains(event.target)
 		) {
 			close()
 		}
@@ -30,64 +34,52 @@ export function usePopMenu() {
 
 	function positionMenu() {
 		nextTick(() => {
-			const act = activatorRef.value
-			const menu = menuRef.value
-			if (!act || !menu) return
+			if (!activatorElement.value || !menuElement.value) return
 
-			const aRect = act.getBoundingClientRect()
-			const mRect = menu.getBoundingClientRect()
+			// make rectanges
+			const activatorRect = activatorElement.value.getBoundingClientRect()
+			const menuRect = menuElement.value.getBoundingClientRect()
 
-			let top = aRect.bottom + 4
-			let left = aRect.left
+			// set inital position
+			const distance = 4
+			let top = activatorRect.bottom + distance
+			let left = activatorRect.left
 
 			// prevent going off right edge
-			if (left + mRect.width > window.innerWidth) {
-				left = window.innerWidth - mRect.width - 8
+			if (left + menuRect.width > window.innerWidth) {
+				left = window.innerWidth - menuRect.width - distance * 2
 			}
 
 			// prevent going off bottom
-			if (top + mRect.height > window.innerHeight) {
-				top = aRect.top - mRect.height - 4
+			if (top + menuRect.height > window.innerHeight) {
+				top = activatorRect.top - menuRect.height - distance
 			}
 
 			// prevent going off left
-			if (left < 0) left = 4
+			if (left < 0) left = distance
 
 			// prevent going off top
-			if (top < 0) top = 4
+			if (top < 0) top = distance
 
+			// set position
 			position.value = { top, left }
 		})
 	}
 
-	// Reposition on scroll/resize
-	function forceRecalc() {
-		if (isOpen.value) positionMenu()
-	}
-
 	onMounted(() => {
 		document.addEventListener('mousedown', onClickOutside)
-		window.addEventListener('scroll', forceRecalc, true)
-		window.addEventListener('resize', forceRecalc)
-
-		// Recalculate on every frame if you want super reactive positioning:
-		const observer = new MutationObserver(forceRecalc)
-		observer.observe(document.body, { attributes: true, childList: true, subtree: true })
 	})
 
 	onBeforeUnmount(() => {
 		document.removeEventListener('mousedown', onClickOutside)
-		window.removeEventListener('scroll', forceRecalc)
-		window.removeEventListener('resize', forceRecalc)
 	})
 
 	return {
 		isOpen,
 		position,
-		activatorRef,
-		menuRef,
+		activatorElement,
+		menuElement,
 		toggle,
-		close,
-		positionMenu,
+		menuClicked,
 	}
 }

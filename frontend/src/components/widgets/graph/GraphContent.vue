@@ -17,13 +17,13 @@ onMounted(async () => {
 		border: false,
 	})
 
-	// Optional: Set an initial expression
-	for (let graph of widget.graphs) {
+	// set initial expression
+	for (let expression of widget.expressions) {
 		widget.calculator.setExpression({
 			// could shor.this to just "graph" :) (see desmos api docs)
-			latex: await graph.latex,
-			color: graph.color,
-			id: graph.id,
+			latex: await expression.latex,
+			color: expression.color,
+			id: expression.id,
 		})
 	}
 
@@ -44,6 +44,6 @@ onMounted(async () => {
 	width: 100%;
 	height: 100%;
 
-	border-bottom: 1px solid rgb(235, 235, 235);
+	border-bottom: 2px solid rgb(175, 175, 175);
 }
 </style>

@@ -32,7 +32,7 @@ export class ExpressionData extends WidgetData {
 				onClick: function () {
 					const widgetStore = useWidgetStore()
 					widgetStore.addWidget(
-						new GraphData(self.x, self.y, self.width / 1.5, self.width / 1.5, [self.latex]),
+						new GraphData(self.x, self.y, self.width, self.width, [self]),
 					) // self.width twice is intentional
 					widgetStore.deleteWidget(self.id)
 				},
@@ -42,23 +42,29 @@ export class ExpressionData extends WidgetData {
 }
 
 export class GraphData extends WidgetData {
-	constructor(x, y, width, height, latexExpressions = []) {
+	constructor(x, y, width, height, expressions) {
 		super(x, y, width, height)
 		this.type = 'Graph'
-		this.graphs = []
+		this.expressions = []
 		this.calculator
 
-		for (const [i, latex] of latexExpressions.entries()) {
-			this.graphs[i] = { latex, color: '#000000', id: crypto.randomUUID() }
+		for (const expression of expressions) {
+			this.expressions.push(expression)
 		}
 	}
-	addGraph(latex) {
-		const graph = { latex, color: '#000000', id: crypto.randomUUID() }
-		this.graphs.push(graph)
+	addExpression(expression) {
+		this.expressions.push(expression)
+		const graph = { latex: expression.latex, color: '#000000', id: expression.id }
 		this.calculator.setExpression({ latex: graph.latex, color: graph.color, id: graph.id })
 	}
-	deleteGraph(graph) {
-		this.graphs = this.graphs.filter((e) => e.id != graph.id)
-		this.calculator.removeExpression({ id: graph.id })
+	deleteExpression(expression) {
+		const widgetStore = useWidgetStore()
+
+		this.expressions = this.expressions.filter((e) => e.id != expression.id)
+		this.calculator.removeExpression({ id: expression.id })
+
+		if (this.expressions.length  == 0 ) {
+			widgetStore.deleteWidget(this.id)
+		}
 	}
 }

@@ -1,31 +1,57 @@
 <script setup>
+import PopMenu from '@/components/core/ui/PopMenu.vue'
 import { useWidgetStore } from '@/stores/useWidgetStore'
-import Desmos from 'desmos'
+import { ref } from 'vue'
 
-const props = defineProps({
-	id: String,
-	calculator: Desmos.GraphingCalculator,
-})
+const props = defineProps({id: String})
 const widgetStore = useWidgetStore()
 const widget = widgetStore.getWidgetById(props.id)
+const expressionListElement = ref(null)
+
+function convertToExpression(expression) {
+	// remove expression from graph
+	widget.deleteExpression(expression)
+	const rect = expressionListElement.value.getBoundingClientRect()
+
+	// move it to bottom if there are still expressions (not super robust)
+	if (widget.expressions.length != 0) {
+		expression.x = rect.left
+		expression.y = rect.bottom + 12
+	}
+	// add the widget to store
+	widgetStore.addWidget(expression)
+}
 </script>
 <template>
-	<div class="expressionList" v-if="widget.graphs.length > 0">
-		<div class="expression-container" v-for="graph in widget.graphs" :key="graph.id">
+	<div class="expressionList" v-if="widget.expressions.length > 0" ref="expressionListElement">
+		<div class="expression-container" v-for="expression in widget.expressions" :key="expression.id">
+			<!-- expression -->
 			<vue-mathjax
-				:formula="`$$${graph.latex}$$`"
+				:formula="`$$${expression.latex}$$`"
 				class="typeset-expression"
 				:options="{ messageStyle: 'none' }"
-				@click="widget.deleteGraph(graph)"
 			/>
+
+			<!-- menu for options -->
+			<PopMenu :closeOnClick="true">
+				<template #activator>
+					<div class="popmenu-activator">
+						<img class="three-dot-image" src="/assets/vertical-dots.svg" />
+					</div>
+				</template>
+				<template #menu>
+					<div @click="convertToExpression(expression)">Convert to Expression</div>
+					<div @click="widget.deleteExpression(expression)" style="color: red;">Delete</div>
+				</template>
+			</PopMenu>
 		</div>
 	</div>
 </template>
 
 <style scoped>
 .expressionList {
-	margin: 0.5em;
-	margin-left: 0.25em;
+	margin: 0.2em;
+	margin-left: 0.1em;
 	display: flex;
 	flex-direction: row;
 	gap: 0.3em;
@@ -41,31 +67,38 @@ const widget = widgetStore.getWidgetById(props.id)
 	align-items: center;
 	justify-content: center;
 	position: relative;
+
+	border: 2px solid rgba(53, 215, 255, 0.5);
+	border-radius: 0.5em;
 }
 
 .typeset-expression {
-	background: rgb(245, 245, 245);
-	font-size: 1em;
-	padding: 0.3em;
-	border: 2px solid rgba(43, 174, 255, 0.5);
-	border-radius: 0.5em;
-	transition: background 0.1s ease-in-out;
+	margin: 5px;
 }
 
-.typeset-expression:hover {
-	background-color: lightgray;
+.popmenu-activator {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	margin: 3px;
+
+	background-color: rgb(221, 221, 221);
+	border-radius: 3px;
+
+	transition: background ease-in-out 0.1s;
 }
 
-.typeset-expression:hover::before {
-	content: ''; /* Required for pseudo-elements */
-	position: absolute;
-	top: 50%; /* Center vertically */
-	left: 0;
-	right: 0;
-	height: 2px;
-	border-radius: 1000px;
-	width: calc(100% - 10px);
-	background-color: black;
-	transform: translateX(5px);
+.popmenu-activator:hover {
+	background-color: rgb(184, 184, 184);
+}
+
+.three-dot-image {
+	height: 1.2em; /* small consistent size */
+	width: auto; /* preserve aspect ratio */
+	display: block; /* remove inline descender whitespace */
+	margin: 0 auto; /* horizontally center */
+	object-fit: contain;
+	padding: 0.2em;
 }
 </style>

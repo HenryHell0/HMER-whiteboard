@@ -1,5 +1,5 @@
 <script setup>
-import { ref, toRef, computed, onMounted, onUnmounted } from 'vue'
+import { ref, toRef, computed, onMounted, onUnmounted, watch } from 'vue'
 
 import { useDrag, useResize } from '@/composables/useDraggables'
 import { useDrawingOpacity } from '@/composables/useDrawingOpacity'
@@ -36,6 +36,31 @@ const styles = computed(() => {
 	}
 })
 
+// clamp widget movement
+function clampToViewport () {
+	const windowWidth = window.innerWidth
+	const windowHeight = window.innerHeight
+
+	// X bounds
+	if (widget.x < 0) widget.x = 0
+	if (widget.x + widget.width > windowWidth) widget.x = windowWidth - widget.width
+
+	// Y bounds
+	if (widget.y < 0) widget.y = 0
+	if (widget.y + widget.height > windowHeight) widget.y = windowHeight - widget.height
+}
+
+// Watch movement and clamp
+watch(
+	() => [widget.x, widget.y],
+	() => clampToViewport(),
+	{ deep: false }
+)
+watch(
+	() => [widget.width, widget.height],
+	() => clampToViewport()
+)
+
 function toolbarClicked(event) {
 	dragStart(event)
 
@@ -47,6 +72,7 @@ function toolbarClicked(event) {
 }
 function toolBarMove(event) {
 	if (!dragMove(event)) return
+
 	element.value.style.pointerEvents = 'none'
 }
 function toolbarReleased() {
@@ -61,6 +87,8 @@ function toolbarReleased() {
 }
 
 onMounted(() => {
+	clampToViewport()
+
 	document.addEventListener('mousemove', toolBarMove)
 	document.addEventListener('mouseup', toolbarReleased)
 
