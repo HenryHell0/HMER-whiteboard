@@ -1,17 +1,17 @@
 import { ref } from 'vue'
-export const heldExpression = ref('')
-import { useSessionStore } from '@/stores/useSessionStore'
+import type { Ref } from 'vue'
+import { useSessionStore } from '@/stores/useSessionStore.js'
 
 export function useMouseDelta() {
 	const sessionStore = useSessionStore()
 	// this also updates stopCanvasInput because thats all I'm usin it for
-	var startX = 0
-	var startY = 0
+	let startX = 0
+	let startY = 0
 	const deltaX = ref(0)
 	const deltaY = ref(0)
-	var moving = ref(false)
+	const moving = ref(false)
 
-	function start(event) {
+	function start(event: MouseEvent) {
 		moving.value = true
 		sessionStore.inputMode = 'widget'
 
@@ -20,7 +20,7 @@ export function useMouseDelta() {
 		deltaX.value = 0
 		deltaY.value = 0
 	}
-	function move(event) {
+	function move(event: MouseEvent) {
 		// returns true if succesful and false if not dragging/clicking :)
 		if (!moving.value || event.buttons !== 1) return false
 
@@ -37,20 +37,20 @@ export function useMouseDelta() {
 	return { deltaX, deltaY, start, move, end, moving }
 }
 
-export function useDrag(elementX, elementY) {
+export function useDrag(elementX: Ref<number>, elementY: Ref<number>) {
 	const { start, move, end, deltaX, deltaY, moving: isDragging } = useMouseDelta()
 
-	let initialElementX
-	let initialElementY
+	let initialElementX: number
+	let initialElementY: number
 
-	function dragStart(event) {
+	function dragStart(event: MouseEvent) {
 		start(event)
 
 		initialElementX = elementX.value
 		initialElementY = elementY.value
 	}
 
-	function dragMove(event) {
+	function dragMove(event: MouseEvent) {
 		if (!move(event)) return false
 
 		elementX.value = initialElementX + deltaX.value
@@ -66,18 +66,18 @@ export function useDrag(elementX, elementY) {
 	return { dragStart, dragMove, dragEnd, isDragging }
 }
 
-export function useResize(elementWidth, elementHeight) {
+export function useResize(elementWidth: Ref<number>, elementHeight: Ref<number>) {
 	const { start, move, end, deltaX, deltaY, moving: isResizing } = useMouseDelta()
-	let initialWidth
-	let initialHeight
+	let initialWidth: number
+	let initialHeight: number
 
-	function resizeStart(event) {
+	function resizeStart(event: MouseEvent) {
 		start(event)
 		initialWidth = elementWidth.value
 		initialHeight = elementHeight.value
 	}
 
-	function resizeMove(event) {
+	function resizeMove(event: MouseEvent) {
 		if (!move(event)) return
 
 		elementWidth.value = initialWidth + deltaX.value

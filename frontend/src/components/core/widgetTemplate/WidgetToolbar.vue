@@ -1,7 +1,12 @@
-<script setup>
+<script setup lang="ts">
 import { useWidgetStore } from '@/stores/useWidgetStore'
+import { ExpressionData, type Widget } from '@/utils/widgetData'
 const widgetStore = useWidgetStore()
-const { isDragging, widget } = defineProps(['isDragging', 'widget'])
+
+const { isDragging, widget } = defineProps<{
+	isDragging: boolean
+	widget: Widget
+}>()
 </script>
 <template>
 	<div

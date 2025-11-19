@@ -40,6 +40,7 @@ export default defineConfig([
 				{
 					ignores: ['Widget', 'Toolbar', 'Expression', 'Graph', 'Widgets'],
 				},
+
 			],
 		},
 	},

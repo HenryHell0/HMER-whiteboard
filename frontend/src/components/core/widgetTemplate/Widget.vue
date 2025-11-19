@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref, toRef, computed, onMounted, onUnmounted, watch } from 'vue'
 
 import { useDrag, useResize } from '@/composables/useDraggables'
@@ -11,10 +11,12 @@ import WidgetToolbar from './WidgetToolbar.vue'
 const widgetStore = useWidgetStore()
 const sessionStore = useSessionStore()
 
-const props = defineProps({ id: String })
+const props = defineProps<{
+	id: string
+}>()
 const widget = widgetStore.getWidgetById(props.id)
 
-var element = ref(null)
+var element = ref<HTMLElement | null>(null)
 useDrawingOpacity(element)
 
 const { dragStart, dragMove, dragEnd, isDragging } = useDrag(toRef(widget, 'x'), toRef(widget, 'y'))
@@ -37,7 +39,7 @@ const styles = computed(() => {
 })
 
 // clamp widget movement
-function clampToViewport () {
+function clampToViewport() {
 	const windowWidth = window.innerWidth
 	const windowHeight = window.innerHeight
 
@@ -49,30 +51,26 @@ function clampToViewport () {
 	if (widget.y < 0) widget.y = 0
 	if (widget.y + widget.height > windowHeight) widget.y = windowHeight - widget.height
 }
-
 // Watch movement and clamp
 watch(
 	() => [widget.x, widget.y],
 	() => clampToViewport(),
-	{ deep: false }
+	{ deep: false },
 )
 watch(
 	() => [widget.width, widget.height],
-	() => clampToViewport()
+	() => clampToViewport(),
 )
 
-function toolbarClicked(event) {
+function toolbarClicked(event: MouseEvent) {
 	dragStart(event)
-
 	sessionStore.heldWidgetId = widget.id
-
-	// update zindex
-	widgetStore.zIndexCount++
-	widget.zIndex = widgetStore.zIndexCount
+	bringToFront()
 }
-function toolBarMove(event) {
+function toolBarMove(event: MouseEvent) {
 	if (!dragMove(event)) return
 
+	if (!element.value) throw new Error('no element aaah!')
 	element.value.style.pointerEvents = 'none'
 }
 function toolbarReleased() {
@@ -84,6 +82,10 @@ function toolbarReleased() {
 
 	// reset widget ID and reset mode
 	sessionStore.heldWidgetId = ''
+}
+
+function bringToFront() {
+	widgetStore.bringWidgetToFront(widget)
 }
 
 onMounted(() => {
@@ -105,9 +107,11 @@ onUnmounted(() => {
 </script>
 <template>
 	<div ref="element" class="template" :class="classes" :style="styles">
-		<WidgetToolbar @toolbarClicked="toolbarClicked" :isDragging :widget></WidgetToolbar>
+		<WidgetToolbar @toolbarClicked="toolbarClicked" :widget :isDragging></WidgetToolbar>
 
-		<slot></slot>
+		<div @click="bringToFront" style="height: 100%">
+			<slot></slot>
+		</div>
 
 		<img class="resizer" @mousedown="resizeStart" :src="'./assets/resize.svg'" draggable="false" />
 	</div>

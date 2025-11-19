@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 //TODO add more stuff to this directory with the buttons, setction etc. See chat's idea
 import { ref } from 'vue'
 import { useSessionStore } from '@/stores/useSessionStore'

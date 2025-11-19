@@ -1,10 +1,9 @@
-// /src/composables/usePopMenu.js
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 
-export function usePopMenu(closeMenuOnClick=false) {
+export function usePopMenu(closeMenuOnClick = false) {
 	const isOpen = ref(false)
-	const activatorElement = ref(null)
-	const menuElement = ref(null)
+	const activatorElement = ref<HTMLElement | null>(null)
+	const menuElement = ref<HTMLElement | null>(null)
 
 	const position = ref({ top: 0, left: 0 })
 
@@ -21,13 +20,11 @@ export function usePopMenu(closeMenuOnClick=false) {
 		if (closeMenuOnClick) close()
 	}
 
-	function onClickOutside(event) {
-		if (
-			activatorElement.value &&
-			!activatorElement.value.contains(event.target) &&
-			menuElement.value &&
-			!menuElement.value.contains(event.target)
-		) {
+	function onClickOutside(event: MouseEvent) {
+		const target = event.target
+		if (!(target instanceof Node)) return
+
+		if (!activatorElement.value?.contains(target) && !menuElement.value?.contains(target)) {
 			close()
 		}
 	}

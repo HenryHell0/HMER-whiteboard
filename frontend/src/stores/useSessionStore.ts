@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import type { ToolName } from '@/utils/drawingTools.js'
 
 interface Position {
 	x: number
 	y: number
 }
 
-type ActiveToolName = 'pen' | 'eraser' | 'selector'
 type InputModeName = 'idle' | 'drawing' | 'widget'
 
 export const useSessionStore = defineStore('session', () => {
@@ -23,7 +23,7 @@ export const useSessionStore = defineStore('session', () => {
 	})
 
 	const previousMousePos = { x: -1, y: -1 }
-	const activeTool = ref<ActiveToolName>('pen')
+	const activeTool = ref<ToolName>('pen')
 	const inputMode = ref<InputModeName>('idle')
 
 	const heldWidgetId = ref<string>('')

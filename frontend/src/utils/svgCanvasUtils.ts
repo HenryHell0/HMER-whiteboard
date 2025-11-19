@@ -1,8 +1,7 @@
-import type { Path } from "typescript"
-import { useCanvasStore } from "../stores/useCanvasStore.js"
+import type { Path } from 'typescript'
+import { useCanvasStore } from '../stores/useCanvasStore.js'
 
 export function serializeSVG(svgElement: SVGSVGElement): string {
-
 	for (const element of Array.from(svgElement.children)) {
 		if (element instanceof SVGElement) {
 			const style = getComputedStyle(element)
@@ -14,12 +13,20 @@ export function serializeSVG(svgElement: SVGSVGElement): string {
 
 	return new XMLSerializer().serializeToString(svgElement)
 }
-export function cropCanvas(finalCanvas: HTMLCanvasElement, originalCanvas: HTMLCanvasElement, x: number, y: number, w: number, h:number) {
+export function cropCanvas(
+	finalCanvas: HTMLCanvasElement,
+	originalCanvas: HTMLCanvasElement,
+	x: number,
+	y: number,
+	w: number,
+	h: number,
+) {
 	finalCanvas.width = w
 	finalCanvas.height = h
 	const finalCtx = finalCanvas.getContext('2d')
+	if (!finalCtx) throw new Error('could not get context')
 
-	finalCtx!.drawImage(originalCanvas, x, y, w, h, 0, 0, w, h)
+	finalCtx.drawImage(originalCanvas, x, y, w, h, 0, 0, w, h)
 }
 
 export function downloadCanvasPNG(canvas: HTMLCanvasElement) {
@@ -32,11 +39,10 @@ export function downloadCanvasPNG(canvas: HTMLCanvasElement) {
 	document.body.removeChild(downloadLinkElement)
 }
 
-export async function svgToCanvas(id: string): Promise<HTMLCanvasElement>{
+export async function svgToCanvas(id: string): Promise<HTMLCanvasElement> {
 	return new Promise((resolve, reject) => {
 		const svgElement = document.getElementById(id)
-
-		if (!(svgElement instanceof SVGSVGElement)) throw new Error("element is not svgsvgElement")
+		if (!(svgElement instanceof SVGSVGElement)) throw new Error('element is not svgsvgElement')
 
 		// serialize
 		const svgString = serializeSVG(svgElement)
@@ -45,7 +51,7 @@ export async function svgToCanvas(id: string): Promise<HTMLCanvasElement>{
 		// prepare canvas
 		const canvas = document.createElement('canvas')
 		const ctx = canvas.getContext('2d')
-		if (!ctx) throw new Error("ctx undefined")
+		if (!ctx) throw new Error('ctx undefined')
 
 		// create blob
 		const blob = new Blob([svgString], { type: 'image/svg+xml' })
@@ -75,14 +81,13 @@ function canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob> {
 	return new Promise((resolve, reject) => {
 		canvas.toBlob((blob) => {
 			if (!blob) {
-				reject(new Error("Canvas toBlob() returned null"))
+				reject(new Error('Canvas toBlob() returned null'))
 				return
 			}
 			resolve(blob)
 		}, 'image/png')
 	})
 }
-
 
 export async function recognizeCanvas(canvas: HTMLCanvasElement): Promise<string> {
 	const blob = await canvasToBlob(canvas)

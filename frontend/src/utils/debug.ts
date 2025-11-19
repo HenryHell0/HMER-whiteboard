@@ -1,5 +1,5 @@
-import { ExpressionData, GraphData } from './widgetData'
-import { useWidgetStore } from '@/stores/useWidgetStore'
+import { ExpressionData, GraphData } from './widgetData.js'
+import { useWidgetStore } from '@/stores/useWidgetStore.js'
 
 export const DEBUG = {
 	createTestExpression: true,

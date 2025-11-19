@@ -1,6 +1,5 @@
-<script setup>
-import { tools } from '@/utils/drawingTools'
-const selector = tools['selector']
+<script setup lang="ts">
+import { selector } from '@/utils/drawingTools'
 </script>
 <template>
 	<svg class="overlaySVG">

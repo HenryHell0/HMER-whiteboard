@@ -1,4 +1,12 @@
-import { useWidgetStore } from "../stores/useWidgetStore.js"
+import { useWidgetStore } from '@/stores/useWidgetStore.js'
+
+export type WidgetName = 'Expression' | 'Graph'
+
+interface ItoolbarButton {
+	name: string
+	icon: string
+	onClick: (event: PointerEvent) => void
+}
 
 abstract class WidgetData {
 	x: number
@@ -7,6 +15,8 @@ abstract class WidgetData {
 	height: number
 	id: string
 	zIndex: number
+
+	toolbarButtons?: ItoolbarButton[]
 
 	constructor(x: number, y: number, width: number, height: number) {
 		this.x = x
@@ -18,18 +28,11 @@ abstract class WidgetData {
 	}
 }
 
-interface ItoolbarButton {
-	name: string
-	icon: string
-	onClick: Function
-}
-
 export class ExpressionData extends WidgetData {
-	type: string
-	latex: string
-	toolbarButtons: ItoolbarButton[]
+	type: WidgetName
+	latex: string | Promise<string>
 
-	constructor(x: number, y: number, width: number, height: number, latex: string) {
+	constructor(x: number, y: number, width: number, height: number, latex: string | Promise<string>) {
 		super(x, y, width, height)
 		this.type = 'Expression'
 		this.latex = latex
@@ -51,13 +54,12 @@ export class ExpressionData extends WidgetData {
 
 export class GraphData extends WidgetData {
 	expressions: ExpressionData[]
-	type: string;
+	type: WidgetName
 	calculator: any
 	constructor(x: number, y: number, width: number, height: number, expressions: ExpressionData[]) {
 		super(x, y, width, height)
 		this.type = 'Graph'
 		this.expressions = [...expressions]
-
 	}
 	addExpression(expression: ExpressionData) {
 		this.expressions.push(expression)

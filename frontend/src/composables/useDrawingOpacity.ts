@@ -1,30 +1,30 @@
-import { watch, onUnmounted } from 'vue'
-import { useSessionStore } from '@/stores/useSessionStore'
+import { ref, watch, onUnmounted, type Ref } from 'vue'
+import { useSessionStore } from '@/stores/useSessionStore.js'
 
-export function useDrawingOpacity(element, options = {}) {
+interface DrawingOpacityOptions {
+	drawOpacity?: number
+	drawPointerEvents?: string
+	normalOpacity?: number
+	normalPointerEvents?: string
+}
+
+export function useDrawingOpacity(element: Ref<HTMLElement | null>, options: DrawingOpacityOptions = {}) {
 	const sessionStore = useSessionStore()
-	const {
-		drawOpacity = 0.8,
-		drawPointerEvents = 'none',
-		normalOpacity = 1,
-		normalPointerEvents = 'auto',
-	} = options
 
-	function changeDrawingOpacity(event) {
-		if (!element.value) return
+	const { drawOpacity = 0.8, drawPointerEvents = 'none', normalOpacity = 1, normalPointerEvents = 'auto' } = options
+
+	function changeDrawingOpacity(event: MouseEvent) {
+		if (!element.value) throw new Error("element doesen't exist :(")
 		if (sessionStore.inputMode !== 'drawing') return
 
 		const bbox = element.value.getBoundingClientRect()
-		if (
+		const inside =
 			event.clientX > bbox.left &&
 			event.clientX < bbox.right &&
 			event.clientY > bbox.top &&
 			event.clientY < bbox.bottom
-		) {
-			element.value.style.opacity = drawOpacity.toString()
-		} else {
-			element.value.style.opacity = normalOpacity.toString()
-		}
+
+		element.value.style.opacity = inside ? drawOpacity.toString() : normalOpacity.toString()
 	}
 
 	watch(

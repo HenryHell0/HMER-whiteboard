@@ -1,13 +1,15 @@
-<script setup>
+<script setup lang="ts">
 import Widget from '@/components/core/widgetTemplate/Widget.vue'
 import Expression from '../widgets/Expression.vue'
 import Graph from '../widgets/graph/Graph.vue'
 import { useWidgetStore } from '@/stores/useWidgetStore'
 import { addTestWidgets } from '@/utils/debug'
+import type { Component } from 'vue'
+import type { WidgetName } from '@/utils/widgetData'
 
 const widgetStore = useWidgetStore()
 
-const widgetComponents = {
+const widgetComponents: Record<WidgetName, Component> = {
 	Expression: Expression,
 	Graph: Graph,
 }

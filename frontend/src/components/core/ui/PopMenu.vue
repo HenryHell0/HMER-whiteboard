@@ -1,12 +1,13 @@
-<script setup>
+<script setup lang="ts">
 import { usePopMenu } from '@/composables/usePopMenu'
-const props = defineProps({
-	closeOnClick: {
-		type: Boolean,
-		required: false,
-		default: false,
-	}
-})
+const props = withDefaults(
+	defineProps<{
+		closeOnClick: boolean
+	}>(),
+	{
+		closeOnClick: false,
+	},
+)
 
 const { isOpen, position, activatorElement, menuElement, toggle, menuClicked } = usePopMenu(props.closeOnClick)
 </script>
@@ -24,7 +25,8 @@ const { isOpen, position, activatorElement, menuElement, toggle, menuClicked } =
 			ref="menuElement"
 			class="menu"
 			:style="{ top: position.top + 'px', left: position.left + 'px' }"
-			@click="menuClicked">
+			@click="menuClicked"
+		>
 			<slot name="menu" />
 		</div>
 	</div>
