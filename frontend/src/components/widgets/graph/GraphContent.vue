@@ -29,10 +29,6 @@ onMounted(async () => {
 			color: expression.graphColor,
 			id: expression.id,
 		})
-
-		watch(toRef(expression, 'graphColor'), (newColor) => {
-			widget.calculator.setExpression({ id: expression.id, color: newColor })
-		})
 	}
 
 	// see this

@@ -32,6 +32,11 @@ function convertToExpression(expression: ExpressionData) {
 // 	if (!(widget instanceof GraphData)) throw new Error('not a graph')
 // 	// widget.calculator.
 // }
+
+function changeColor(expression: ExpressionData, color: string) {
+	if (!(widget instanceof GraphData)) throw new Error("expression isn't expressioning")
+	widget.changeGraphColor(expression, color)
+}
 </script>
 <template>
 	<div class="expressionList" v-if="widget.expressions.length > 0">
@@ -58,7 +63,7 @@ function convertToExpression(expression: ExpressionData) {
 				<template #menu>
 					<div class="colorMenu">
 						<svg class="color-svg" v-for="color in graphColors.values()">
-							<circle class="color-circle" :fill="color" @click="expression.graphColor = color"></circle>
+							<circle class="color-circle" :fill="color" @click="changeColor(expression, color)"></circle>
 						</svg>
 					</div>
 					<div class="popmenu-button" @click="convertToExpression(expression)">Convert to Expression</div>

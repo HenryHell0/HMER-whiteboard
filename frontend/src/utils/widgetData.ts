@@ -91,6 +91,10 @@ export class GraphData extends WidgetData {
 			widgetStore.deleteWidget(this.id)
 		}
 	}
+	changeGraphColor(expression: ExpressionData, color: string) {
+		expression.graphColor = color
+		this.calculator.setExpression({ id: expression.id, color: color })
+	}
 }
 
 export type Widget = ExpressionData | GraphData
