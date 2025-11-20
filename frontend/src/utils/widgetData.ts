@@ -37,7 +37,19 @@ export class ExpressionData extends WidgetData {
 		super(x, y, width, height)
 		this.type = 'Expression'
 		this.latex = latex
-		this.graphColor = 'black' // TODO randomize this see Desmos.Colors
+
+		// determine color :)
+		let colors = new Map<string, string>([
+			['RED', '#c74440'],
+			['BLUE', '#2d70b3'],
+			['GREEN', '#388c46'],
+			['PURPLE', '#6042a6'],
+			['ORANGE', '#fa7e19'],
+			['BLACK', '#000000'],
+		])
+		let color = colors.values().toArray()[Math.floor(Math.random() * colors.size)]
+		if (!color) throw new Error('bad math')
+		this.graphColor = color
 
 		const self = this
 		this.toolbarButtons = [

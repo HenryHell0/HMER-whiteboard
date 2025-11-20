@@ -1,6 +1,6 @@
 NEXT TIME:
-- finish graphs (finally) w/ colors 
-migrate to typescript
+
+- finish graphs (finally) w/ colors
 
 ### Other stuff TODO:
 
@@ -20,7 +20,6 @@ Graphs:
 
 - make it so the padding color is the color of the graph!! (use desmos pallete option too, also make it so you can show/hide graphs!, and import/export)
 - also consider (later) making it so that you can select a portion of the graph to set the bounds
-
 
 DONE:
 
