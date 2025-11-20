@@ -1,22 +1,33 @@
-<script setup>
+<script setup lang="ts">
 import PopMenu from '@/components/core/ui/PopMenu.vue'
 import { useWidgetStore } from '@/stores/useWidgetStore'
+import { GraphData, type ExpressionData } from '@/utils/widgetData'
 import { ref } from 'vue'
 
-const props = defineProps({id: String})
+const props = defineProps<{
+	id: string
+}>()
 const widgetStore = useWidgetStore()
 const widget = widgetStore.getWidgetById(props.id)
-const expressionListElement = ref(null)
+if (!(widget instanceof GraphData)) throw new Error('this aint no graph')
+const expressionListElement = ref<HTMLElement | null>(null)
 
-function convertToExpression(expression) {
+function convertToExpression(expression: ExpressionData) {
 	// remove expression from graph
+	if (!(widget instanceof GraphData)) throw new Error('this aint no graph')
 	widget.deleteExpression(expression)
+
+	// get rectange
+	if (!expressionListElement.value) throw new Error('expression list element is undefined')
 	const rect = expressionListElement.value.getBoundingClientRect()
 
-	// move it to bottom if there are still expressions (not super robust)
-	if (widget.expressions.length != 0) {
+	// set expression to be at the bottom.
+	expression.x = rect.left
+	expression.y = rect.bottom + 12
+	// if we removed all the expressions, put it at the top of the graph
+	if (widget.expressions.length == 0) {
 		expression.x = rect.left
-		expression.y = rect.bottom + 12
+		expression.y = rect.top
 	}
 	// add the widget to store
 	widgetStore.addWidget(expression)
@@ -41,7 +52,7 @@ function convertToExpression(expression) {
 				</template>
 				<template #menu>
 					<div @click="convertToExpression(expression)">Convert to Expression</div>
-					<div @click="widget.deleteExpression(expression)" style="color: red;">Delete</div>
+					<div @click="widget.deleteExpression(expression)" style="color: red">Delete</div>
 				</template>
 			</PopMenu>
 		</div>

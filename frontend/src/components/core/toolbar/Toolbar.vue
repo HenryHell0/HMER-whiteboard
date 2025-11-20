@@ -7,7 +7,7 @@ import { toolList } from '@/utils/drawingTools'
 const sessionStore = useSessionStore()
 
 // make elemnt transparent when drawing over it
-const element = ref(null)
+const element = ref<HTMLElement | null>(null)
 useDrawingOpacity(element)
 </script>
 <template>

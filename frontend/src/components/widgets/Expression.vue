@@ -1,10 +1,12 @@
-<script setup>
+<script setup lang="ts">
 import { toRef } from 'vue'
 import { useWidgetStore } from '@/stores/useWidgetStore'
 import { storeToRefs } from 'pinia'
+import { ExpressionData } from '@/utils/widgetData'
 const props = defineProps({ id: String })
 const widgetStore = useWidgetStore()
 const widget = storeToRefs(widgetStore).widgets.value.find((e) => e.id === props.id)
+if (!(widget instanceof ExpressionData)) throw new Error('this is not an expression widget!')
 
 const latex = toRef(() => widget.latex)
 </script>

@@ -1,16 +1,20 @@
-<script setup>
-import Desmos from 'desmos'
+<script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useWidgetStore } from '@/stores/useWidgetStore'
+import { GraphData } from '@/utils/widgetData'
 
-const props = defineProps({
-	id: String,
-})
-const graphElement = ref(null)
+const props = defineProps<{
+	id: string
+}>()
+const graphElement = ref<HTMLElement | null>(null)
 const widgetStore = useWidgetStore()
 const widget = widgetStore.getWidgetById(props.id)
 
 onMounted(async () => {
+	// check da ting
+	if (!(widget instanceof GraphData)) throw new Error("this widget isn't a graph.")
+	if (!graphElement.value) throw new Error('graphElement does not exist!!')
+
 	// make da thing
 	widget.calculator = Desmos.GraphingCalculator(graphElement.value, {
 		expressions: false,
@@ -22,7 +26,7 @@ onMounted(async () => {
 		widget.calculator.setExpression({
 			// could shor.this to just "graph" :) (see desmos api docs)
 			latex: await expression.latex,
-			color: expression.color,
+			color: expression.graphColor,
 			id: expression.id,
 		})
 	}

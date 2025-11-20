@@ -31,11 +31,13 @@ abstract class WidgetData {
 export class ExpressionData extends WidgetData {
 	type: WidgetName
 	latex: string | Promise<string>
+	graphColor: string
 
 	constructor(x: number, y: number, width: number, height: number, latex: string | Promise<string>) {
 		super(x, y, width, height)
 		this.type = 'Expression'
 		this.latex = latex
+		this.graphColor = 'black' // TODO randomize this see Desmos.Colors
 
 		const self = this
 		this.toolbarButtons = [
@@ -63,7 +65,7 @@ export class GraphData extends WidgetData {
 	}
 	addExpression(expression: ExpressionData) {
 		this.expressions.push(expression)
-		const graph = { latex: expression.latex, color: '#000000', id: expression.id }
+		const graph = { latex: expression.latex, color: expression.graphColor, id: expression.id }
 		this.calculator.setExpression({ latex: graph.latex, color: graph.color, id: graph.id })
 	}
 	deleteExpression(expression: ExpressionData) {

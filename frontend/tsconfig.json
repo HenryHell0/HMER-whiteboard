@@ -6,7 +6,7 @@
 		// "outDir": "./dist",
 		"baseUrl": ".", // Or the base directory for your paths
 		"paths": {
-		  "@/*": ["src/*"] // This maps @/ to src/s
+			"@/*": ["src/*"] // This maps @/ to src/s
 		},
 
 		// Environment Settings
