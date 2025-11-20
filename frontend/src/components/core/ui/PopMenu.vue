@@ -27,6 +27,7 @@ const { isOpen, position, activatorElement, menuElement, toggle, menuClicked } =
 			:style="{ top: position.top + 'px', left: position.left + 'px' }"
 			@click="menuClicked"
 		>
+			<!-- use class=popmenu-button for button styles :) -->
 			<slot name="menu" />
 		</div>
 	</div>
@@ -54,11 +55,14 @@ const { isOpen, position, activatorElement, menuElement, toggle, menuClicked } =
 
 .menu :deep(div) {
 	padding: 8px 14px;
-	cursor: pointer;
 	white-space: nowrap;
 }
 
-.menu :deep(div):hover {
+.menu :deep(.popmenu-button) {
+	cursor: pointer;
+}
+
+.menu :deep(.popmenu-button):hover {
 	background: #f2f2f2;
 }
 </style>

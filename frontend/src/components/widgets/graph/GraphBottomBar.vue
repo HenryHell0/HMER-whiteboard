@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import PopMenu from '@/components/core/ui/PopMenu.vue'
 import { useWidgetStore } from '@/stores/useWidgetStore'
-import { GraphData, type ExpressionData } from '@/utils/widgetData'
+import { GraphData, ExpressionData, graphColors } from '@/utils/widgetData'
 import { ref } from 'vue'
 
 const props = defineProps<{
@@ -10,32 +10,37 @@ const props = defineProps<{
 const widgetStore = useWidgetStore()
 const widget = widgetStore.getWidgetById(props.id)
 if (!(widget instanceof GraphData)) throw new Error('this aint no graph')
-const expressionListElement = ref<HTMLElement | null>(null)
 
 function convertToExpression(expression: ExpressionData) {
 	// remove expression from graph
 	if (!(widget instanceof GraphData)) throw new Error('this aint no graph')
 	widget.deleteExpression(expression)
 
-	// get rectange
-	if (!expressionListElement.value) throw new Error('expression list element is undefined')
-	const rect = expressionListElement.value.getBoundingClientRect()
-
 	// set expression to be at the bottom.
-	expression.x = rect.left
-	expression.y = rect.bottom + 12
+	expression.x = widget.x
+	expression.y = widget.y + widget.height + 12
 	// if we removed all the expressions, put it at the top of the graph
 	if (widget.expressions.length == 0) {
-		expression.x = rect.left
-		expression.y = rect.top
+		expression.x = widget.x
+		expression.y = widget.y
 	}
 	// add the widget to store
 	widgetStore.addWidget(expression)
 }
+
+// function changecolor(expression: ExpressionData, color: string) {
+// 	if (!(widget instanceof GraphData)) throw new Error('not a graph')
+// 	// widget.calculator.
+// }
 </script>
 <template>
-	<div class="expressionList" v-if="widget.expressions.length > 0" ref="expressionListElement">
-		<div class="expression-container" v-for="expression in widget.expressions" :key="expression.id">
+	<div class="expressionList" v-if="widget.expressions.length > 0">
+		<div
+			class="expression-container"
+			v-for="expression in widget.expressions"
+			:key="expression.id"
+			:style="{ border: `2px solid ${expression.graphColor}` }"
+		>
 			<!-- expression -->
 			<vue-mathjax
 				:formula="`$$${expression.latex}$$`"
@@ -51,8 +56,15 @@ function convertToExpression(expression: ExpressionData) {
 					</div>
 				</template>
 				<template #menu>
-					<div @click="convertToExpression(expression)">Convert to Expression</div>
-					<div @click="widget.deleteExpression(expression)" style="color: red">Delete</div>
+					<div class="colorMenu">
+						<svg class="color-svg" v-for="color in graphColors.values()">
+							<circle class="color-circle" :fill="color" @click="expression.graphColor = color"></circle>
+						</svg>
+					</div>
+					<div class="popmenu-button" @click="convertToExpression(expression)">Convert to Expression</div>
+					<div class="popmenu-button" @click="widget.deleteExpression(expression)" style="color: red">
+						Delete
+					</div>
 				</template>
 			</PopMenu>
 		</div>
@@ -60,6 +72,49 @@ function convertToExpression(expression: ExpressionData) {
 </template>
 
 <style scoped>
+.colorMenu {
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: row;
+	gap: 5px;
+	width: 100%;
+	justify-content: space-between;
+	border-bottom: 2px solid lightgray;
+}
+
+.color-svg {
+	width: 26px;
+	height: 26px;
+	/* position: relative; */
+}
+
+.color-svg::after {
+	content: '';
+	background-color: red;
+	position: absolute;
+	top: 10px;
+	/*
+	width: 26px;
+	height: 26px;
+	top: -1px;
+	outline: 2px solid red;
+	background: red;
+	border-radius: 100px;
+	outline-offset: 1px; */
+}
+
+.color-svg:hover {
+	outline: 3px solid gray;
+	border-radius: 100px;
+	outline-offset: -3px;
+}
+
+.color-circle {
+	cx: 13;
+	cy: 13;
+	r: 12;
+}
+
 .expressionList {
 	margin: 0.2em;
 	margin-left: 0.1em;
@@ -79,7 +134,7 @@ function convertToExpression(expression: ExpressionData) {
 	justify-content: center;
 	position: relative;
 
-	border: 2px solid rgba(53, 215, 255, 0.5);
+	/* border: 2px solid red; */
 	border-radius: 0.5em;
 }
 

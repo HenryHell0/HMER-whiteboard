@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, toRef, watch } from 'vue'
 import { useWidgetStore } from '@/stores/useWidgetStore'
 import { GraphData } from '@/utils/widgetData'
 
@@ -28,6 +28,10 @@ onMounted(async () => {
 			latex: await expression.latex,
 			color: expression.graphColor,
 			id: expression.id,
+		})
+
+		watch(toRef(expression, 'graphColor'), (newColor) => {
+			widget.calculator.setExpression({ id: expression.id, color: newColor })
 		})
 	}
 

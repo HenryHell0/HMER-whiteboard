@@ -2,6 +2,15 @@ import { useWidgetStore } from '@/stores/useWidgetStore.js'
 
 export type WidgetName = 'Expression' | 'Graph'
 
+export const graphColors = new Map<string, string>([
+	['RED', '#c74440'],
+	['BLUE', '#2d70b3'],
+	['GREEN', '#388c46'],
+	['PURPLE', '#6042a6'],
+	['ORANGE', '#fa7e19'],
+	['BLACK', '#000000'],
+])
+
 interface ItoolbarButton {
 	name: string
 	icon: string
@@ -39,15 +48,7 @@ export class ExpressionData extends WidgetData {
 		this.latex = latex
 
 		// determine color :)
-		let colors = new Map<string, string>([
-			['RED', '#c74440'],
-			['BLUE', '#2d70b3'],
-			['GREEN', '#388c46'],
-			['PURPLE', '#6042a6'],
-			['ORANGE', '#fa7e19'],
-			['BLACK', '#000000'],
-		])
-		let color = colors.values().toArray()[Math.floor(Math.random() * colors.size)]
+		let color = graphColors.values().toArray()[Math.floor(Math.random() * graphColors.size)]
 		if (!color) throw new Error('bad math')
 		this.graphColor = color
 
@@ -69,16 +70,16 @@ export class ExpressionData extends WidgetData {
 export class GraphData extends WidgetData {
 	expressions: ExpressionData[]
 	type: WidgetName
-	calculator: any
+	calculator!: Desmos.Calculator
 	constructor(x: number, y: number, width: number, height: number, expressions: ExpressionData[]) {
 		super(x, y, width, height)
 		this.type = 'Graph'
 		this.expressions = [...expressions]
 	}
-	addExpression(expression: ExpressionData) {
+	async addExpression(expression: ExpressionData) {
 		this.expressions.push(expression)
 		const graph = { latex: expression.latex, color: expression.graphColor, id: expression.id }
-		this.calculator.setExpression({ latex: graph.latex, color: graph.color, id: graph.id })
+		this.calculator.setExpression({ latex: await graph.latex, color: graph.color, id: graph.id })
 	}
 	deleteExpression(expression: ExpressionData) {
 		const widgetStore = useWidgetStore()
