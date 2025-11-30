@@ -93,11 +93,15 @@ const eraser = new (class implements Tool {
 	}
 })()
 export interface SelectorTool extends Tool {
-	isActive: boolean
 	readonly x: number
 	readonly y: number
 	readonly width: number
 	readonly height: number
+	isActive: boolean
+	startX: number
+	startY: number
+	endX: number
+	endY: number
 }
 export const selector: SelectorTool = reactive(
 	new (class implements SelectorTool {

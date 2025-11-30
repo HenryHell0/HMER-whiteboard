@@ -1,5 +1,6 @@
 import type { Path } from 'typescript'
 import { useCanvasStore } from '../stores/useCanvasStore.js'
+const API_BASE = import.meta.env.VITE_API_BASE
 
 export function serializeSVG(svgElement: SVGSVGElement): string {
 	for (const element of Array.from(svgElement.children)) {
@@ -94,7 +95,7 @@ export async function recognizeCanvas(canvas: HTMLCanvasElement): Promise<string
 	const formData = new FormData()
 	formData.append('img', blob, 'image.png')
 
-	const response = await fetch('/api/predict', {
+	const response = await fetch(`${API_BASE}/predict`, {
 		method: 'POST',
 		body: formData,
 	})

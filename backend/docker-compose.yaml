@@ -1,0 +1,7 @@
+services:
+    texteller:
+        build: ./texteller
+        image: texteller
+        shm_size: 3.24g
+        ports:
+            - "8000:8000"
