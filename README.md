@@ -2,20 +2,24 @@
 
 An interactive, Handwritten Mathematical Expression Regonition (HMER)-based whiteboard for solving and understanding math
 
-### Plans:
-- 📐HMER recognition with **TexTeller** or **MathWriting** 
-- 🔬Solving with **sympy**
+### Features:
+- 📐HMER recognition with **TexTeller**
 - 📈Graphing with **Desmos**
 
-### Progress:
-https://github.com/user-attachments/assets/0688a61b-486d-4b32-8adc-7303103bcff6
+### Future Plans/Currently Working on:
+- 🔬Solving with **sympy**
+- 📋See TODO.md
 
-Try out a recent version on [Github Pages](https://henryhell0.github.io/HMER-whiteboard/) (probably not updated fully)
+### Progress:
+https://github.com/user-attachments/assets/10f42054-18e7-4dbe-8120-f94bb7aa1970
+
+Try out an older version on [Github Pages](https://henryhell0.github.io/HMER-whiteboard/)
 
 ### Installation Instructions:
 - Install [TexTeller](https://github.com/OleehyO/TexTeller)
-- move into frontend directory, run `npm i`
-- from the frontend directory, use `npm run dev` to run it!
+- cd into `frontend` directory
+- run `npm i`
+- run with `npm run dev`
 
 Built with Vue! Yay!
 
