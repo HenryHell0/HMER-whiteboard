@@ -1,21 +1,27 @@
-NEXT TIME:
+## NEXT TIME:
+
+- add feedback button
+- add github icon in top right
+
 
 - start on solving (scary)
 
-### Other stuff TODO:
+## Other stuff TODO:
 
-## COOL OTHER STUFF TO DO!!!
+### General
 
 - 8 UNDO and REDO button!
 - 8 editable expression component!
-- 4 make a robust way to that when you do something with an expression it loads and then does it
-- 4 make it so that hovering over a graph with an expression makes it blur or something so its obvious you can drag it
-- 4 an info/credits button in the right
+- 6 infinite pannable camera 
+    - grab icon panning tool
+    - home icon tool that bring you to original position
+    - spacebar on laptop
+- 5 cool one! fake loading bar for expression recognition - seriously improves UX
+- 4 make a robust way to represent expressions with promises so the user can graph/solve them before they load
 - 2 add different settings for the tools that pop down in a different menu (stoke width, color, etc. ) - make it cute
-- 2 a little tutorial when you start
 - 1 switch HMER select button to having a little AI star
 
-Graphs:
+### Graphs:
 
 - 4 QOL make it so that you can drag an expression from one graph to another
 - 4 QOL EASY make it so that you can drag another graph with only one expression onto a graph to add it

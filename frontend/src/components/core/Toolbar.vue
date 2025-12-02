@@ -13,7 +13,7 @@ useDrawingOpacity(element)
 <template>
 	<div ref="element" class="toolbar" @mouseenter="sessionStore.inputMode = 'idle'">
 		<!-- todo split into sections and improve scalability for undo, redo, etc. -->
-		<!-- drawing tool buttons -->
+		<!-- drawing tool buttons - later this will be for tool in drawingToolList, and we will also have panTools and undoRedoTools -->
 		<button
 			v-for="tool in toolList"
 			:key="tool"

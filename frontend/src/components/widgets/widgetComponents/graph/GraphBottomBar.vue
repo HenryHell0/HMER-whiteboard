@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import PopMenu from '@/components/core/ui/PopMenu.vue'
+import PopMenu from '@/components/ui/PopMenu.vue'
 import { useWidgetStore } from '@/stores/useWidgetStore'
 import { GraphData, ExpressionData, graphColors } from '@/utils/widgetData'
 import { ref } from 'vue'
