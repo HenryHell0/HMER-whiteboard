@@ -9,9 +9,8 @@ WORKDIR /app
 RUN pip install uv
 RUN uv pip install texteller --system
 
-COPY . .
+# COPY . .
 
-ENV PORT=8000
 EXPOSE 8000
 
 CMD [ "texteller", "launch", "--ngpu-per-replica", "0" ]

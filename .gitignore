@@ -40,3 +40,4 @@ __pycache__/
 *.pyc
 
 .env
+backend/feedback/data
