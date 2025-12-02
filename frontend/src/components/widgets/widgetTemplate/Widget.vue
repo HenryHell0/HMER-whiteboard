@@ -129,13 +129,13 @@ onUnmounted(() => {
 
 	border-radius: 0.5em;
 	background: rgb(250, 250, 250);
-	box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+	box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
 
 	pointer-events: fill;
 }
 
 .dragging {
-	box-shadow: 0px 12px 20px rgba(0, 0, 0, 0.4);
+	box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.2);
 	opacity: 80%;
 }
 
@@ -147,6 +147,7 @@ onUnmounted(() => {
 	position: absolute;
 	right: 0;
 	bottom: 0;
+	transform: translate(-1px, -1px);
 	width: 1em;
 	height: 1em;
 	cursor: se-resize;
