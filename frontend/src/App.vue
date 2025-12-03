@@ -20,7 +20,18 @@ import MainCanvas from '@/components/core/MainCanvas.vue'
 
 <style>
 .template {
-	/* TODO doesen't work on macs?? */
-	font-family: roboto;
+	font-family: 'Noto Sans', sans-serif;
+	font-optical-sizing: auto;
+	font-weight: 500;
+	font-style: normal;
+	/* font-variation-settings:
+    "wdth" 100; */
+}
+
+textarea {
+	font-family: 'Noto Sans', sans-serif;
+	font-optical-sizing: auto;
+	font-weight: 500;
+	font-style: normal;
 }
 </style>
