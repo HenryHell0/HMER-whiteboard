@@ -4,7 +4,6 @@ import { onMounted, ref, toRef } from 'vue'
 import { useSessionStore } from '@/stores/useSessionStore'
 import { useDrawingOpacity } from '@/composables/useDrawingOpacity'
 import { toolList } from '@/utils/drawingTools'
-import { isThrowStatement } from 'typescript'
 const sessionStore = useSessionStore()
 
 // make elemnt transparent when drawing over it
@@ -40,7 +39,7 @@ onMounted(() => {
 
 		<!-- ===========feedback button ================-->
 		<div class="toolbar-section" @mouseenter="sessionStore.inputMode = 'idle'">
-			<button @click="" class="toolbar-button">
+			<button @click="sessionStore.inputMode = 'feedback'" class="toolbar-button">
 				<img :src="`./assets/feedback.svg`" draggable="false" />
 			</button>
 		</div>

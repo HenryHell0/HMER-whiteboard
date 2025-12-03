@@ -15,8 +15,13 @@ export default defineConfig({
 	base: '/HMER-whiteboard/', // this is needed for github pages to work :)
 	server: {
 		proxy: {
-			'/api': {
+			'/api/predict': {
 				target: 'http://127.0.0.1:8000',
+				changeOrigin: true,
+				rewrite: (path) => path.replace(/^\/api/, ''),
+			},
+			'/api/feedback': {
+				target: 'http://127.0.0.1:3100',
 				changeOrigin: true,
 				rewrite: (path) => path.replace(/^\/api/, ''),
 			},

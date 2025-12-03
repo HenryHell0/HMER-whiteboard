@@ -7,7 +7,7 @@ interface Position {
 	y: number
 }
 
-type InputModeName = 'idle' | 'drawing' | 'widget'
+type InputModeName = 'idle' | 'drawing' | 'widget' | 'feedback'
 
 export const useSessionStore = defineStore('session', () => {
 	const currentStroke = ref<Position[]>([])
@@ -23,6 +23,7 @@ export const useSessionStore = defineStore('session', () => {
 	})
 
 	const previousMousePos = { x: -1, y: -1 }
+
 	const activeTool = ref<ToolName>('pen')
 	const inputMode = ref<InputModeName>('idle')
 

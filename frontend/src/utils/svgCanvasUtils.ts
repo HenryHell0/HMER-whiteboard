@@ -1,5 +1,4 @@
-import type { Path } from 'typescript'
-import { useCanvasStore } from '../stores/useCanvasStore.js'
+import { useCanvasStore } from '@/stores/useCanvasStore.js'
 const API_BASE = import.meta.env.VITE_API_BASE
 
 export function serializeSVG(svgElement: SVGSVGElement): string {
