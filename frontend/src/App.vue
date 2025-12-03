@@ -1,8 +1,9 @@
 <script setup>
-import Toolbar from '@/components/core/Toolbar.vue'
+import Toolbar from '@/components/core/toolbar/Toolbar.vue'
 import WidgetContainer from '@/components/core/WidgetContainer.vue'
 import OverlaySvg from '@/components/core/OverlaySvg.vue'
 import MainCanvas from '@/components/core/MainCanvas.vue'
+
 </script>
 
 <template>
@@ -19,6 +20,7 @@ import MainCanvas from '@/components/core/MainCanvas.vue'
 
 <style>
 .template {
+	/* TODO doesen't work on macs?? */
 	font-family: roboto;
 }
 </style>
